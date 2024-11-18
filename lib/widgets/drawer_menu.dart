@@ -46,7 +46,9 @@ class DrawerMenu extends StatelessWidget {
 }
 
 class _DrawerHeaderAlternative extends StatelessWidget {
-  const _DrawerHeaderAlternative();
+  const _DrawerHeaderAlternative({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
