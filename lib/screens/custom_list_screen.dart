@@ -1,6 +1,6 @@
 import 'dart:developer';
-import 'package:flutter_application_base/mocks/people_mock.dart' show elements;
 import 'package:flutter/material.dart';
+import 'package:practico2labo4/mocks/people_mock.dart';
 
 class CustomListScreen extends StatefulWidget {
   const CustomListScreen({super.key});
