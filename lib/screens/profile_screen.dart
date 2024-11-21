@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:practico2labo4/helpers/preferences.dart';
-<<<<<<< HEAD
-//import 'package:flutter_application_base/helpers/preferences.dart';
-=======
-
->>>>>>> a7e8e7f0cafd0485171fa3d4306fecffa62a1e48
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});

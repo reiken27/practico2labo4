@@ -2,12 +2,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
-<<<<<<< HEAD
-
 import 'package:practico2labo4/screens/visualizacion_movimiento_screen.dart'; // Importante para manejar el tiempo de espera y reintentos
-=======
 import 'package:practico2labo4/screens/screens.dart'; 
->>>>>>> a7e8e7f0cafd0485171fa3d4306fecffa62a1e48
+
 
 class ListaMovimientosScreen extends StatefulWidget {
   const ListaMovimientosScreen({super.key});
