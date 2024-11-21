@@ -189,7 +189,7 @@ class _DrawerHeaderAlternativeState extends State<_DrawerHeaderAlternative> {
               '[ Pokémon Menu ]',
               style: TextStyle(
                 fontSize: 18,
-                color: Colors.white,
+                color: Color.fromARGB(255, 2, 2, 2),
                 fontFamily: 'RobotoMono',
                 fontWeight: FontWeight.bold,
               ),
