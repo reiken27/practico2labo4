@@ -1,10 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'dart:async';
+import 'package:practico2labo4/screens/screens.dart';
 import 'package:practico2labo4/screens/visualizacion_movimiento_screen.dart'; // Importante para manejar el tiempo de espera y reintentos
-import 'package:practico2labo4/screens/screens.dart'; 
-
 
 class ListaMovimientosScreen extends StatefulWidget {
   const ListaMovimientosScreen({super.key});
@@ -38,7 +38,9 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
     });
 
     try {
-      final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10)); // Timeout de 10 segundos
+      final response = await http
+          .get(Uri.parse(url))
+          .timeout(const Duration(seconds: 10)); // Timeout de 10 segundos
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -46,7 +48,8 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
         // Verificar si el widget sigue montado antes de llamar a setState()
         if (!isDisposed) {
           setState(() {
-            movimientos.addAll(data['results']); // Agregar los nuevos movimientos a la lista existente
+            movimientos.addAll(data[
+                'results']); // Agregar los nuevos movimientos a la lista existente
             nextUrl = data['next']; // Establecer la URL de la siguiente página
             isLoading = false;
           });
@@ -67,7 +70,8 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
         setState(() {
           isLoading = false;
         });
-        throw Exception('Tiempo de espera agotado. No se pudo conectar a la API.');
+        throw Exception(
+            'Tiempo de espera agotado. No se pudo conectar a la API.');
       }
     } on http.ClientException catch (_) {
       if (retries > 0) {
@@ -97,7 +101,8 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
                 final movimiento = movimientos[index];
 
                 // Generamos una URL de imagen para el movimiento actual (puedes mejorar la lógica para personalizar la imagen)
-                int pokemonId = index + 1; // Para probar, generamos un ID de Pokémon basado en el índice (del 1 al 100)
+                int pokemonId = index +
+                    1; // Para probar, generamos un ID de Pokémon basado en el índice (del 1 al 100)
                 String imageUrl = generatePokemonImageUrl(pokemonId);
 
                 return ListTile(
@@ -129,4 +134,3 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
     return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$id.png';
   }
 }
-

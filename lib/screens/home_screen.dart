@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Importa este paquete para SystemNavigator.pop()
 import 'package:practico2labo4/widgets/drawer_menu.dart';
@@ -12,7 +11,7 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Pokemons',
+          'Pokémons',
           style: TextStyle(
             fontFamily: 'PokemonFont', // Fuente personalizada
             fontWeight: FontWeight.bold,
@@ -71,4 +70,5 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
+
 

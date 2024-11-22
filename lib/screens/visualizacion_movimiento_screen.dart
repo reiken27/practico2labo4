@@ -83,11 +83,11 @@ class _VisualizacionMovimientoScreenState
                           ),
                           const SizedBox(height: 16),
 
-                          // Switch (o Checkbox)
+                          // Switch para favorito
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Marcar como favorito'),
+                              const Text('Es favorito:'),
                               Switch(
                                 value: isFavorite,
                                 onChanged: (value) {
@@ -101,32 +101,10 @@ class _VisualizacionMovimientoScreenState
                         ],
                       ),
                     ),
+                    const SizedBox(height: 16),
 
-                    const SizedBox(height: 16),
-                    Text(
-                      'Precisión: ${movimiento?['accuracy'] ?? "N/A"}',
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Poder: ${movimiento?['power'] ?? "N/A"}',
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Puntos de poder (PP): ${movimiento?['pp'] ?? "N/A"}',
-                      style: const TextStyle(fontSize: 18),
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Tipo:',
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      movimiento?['type']['name'].toUpperCase() ?? "N/A",
-                      style: const TextStyle(fontSize: 18),
-                    ),
+                    // Información del movimiento
+                    Text('Descripción: ${movimiento?['flavor_text_entries'][0]['flavor_text']}'),
                   ],
                 ),
               ),
@@ -134,4 +112,5 @@ class _VisualizacionMovimientoScreenState
     );
   }
 }
+
 

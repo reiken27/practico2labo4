@@ -4,9 +4,13 @@ import 'package:flutter/material.dart';
 
 class DrawerMenu extends StatelessWidget {
   final List<Map<String, String>> _menuItems = <Map<String, String>>[
-    {'route': 'home', 'title': 'Home', 'subtitle': 'Home + counter app'},
-    {'route': 'custom_list', 'title': 'Custom list', 'subtitle': ''},
-    {'route': 'profile', 'title': 'Perfil usuario', 'subtitle': ''},
+    {
+      'route': 'home',
+      'title': 'Pantalla Principal',
+      'subtitle': 'Muestra pantalla principal'
+    },
+    {'route': 'custom_list', 'title': 'nova', 'subtitle': ''},
+    {'route': 'profile', 'title': 'Pokemon Black', 'cambia a modo negro': ''},
     {
       'route': 'lista_movimientos',
       'title': 'Lista Movimientos',
@@ -31,22 +35,25 @@ class DrawerMenu extends StatelessWidget {
                     const EdgeInsets.symmetric(vertical: 0, horizontal: 15),
                 dense: true,
                 minLeadingWidth: 30,
-                iconColor: Colors.yellow[700],
+                iconColor:
+                    Colors.yellow[700], // Cambio de color rojo a amarillo
                 title: Text(
                   item['title']!,
                   style: const TextStyle(
-                    fontFamily: 'FuzzyBubbles',
-                    fontSize: 18,
+                    fontFamily: 'FuzzyBubbles', // Tipografía personalizada
+                    fontSize: 20, // Aumentar tamaño de letra
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color: Color.fromARGB(
+                        255, 250, 191, 40), // Cambiar texto a amarillo
                   ),
                 ),
                 subtitle: Text(
                   item['subtitle'] ?? '',
                   style: const TextStyle(
                     fontFamily: 'RobotoMono',
-                    fontSize: 12,
-                    color: Colors.grey,
+                    fontSize: 14, // Tamaño de letra más grande
+                    color: Color.fromARGB(
+                        255, 0, 0, 0), // Cambiar subtítulo a blanco
                   ),
                 ),
                 leading: const Icon(Icons.arrow_right, size: 28),
@@ -189,8 +196,7 @@ class _DrawerHeaderAlternativeState extends State<_DrawerHeaderAlternative> {
               '[ Pokémon Menu ]',
               style: TextStyle(
                 fontSize: 18,
-            
-                color: Color.fromARGB(255, 197, 33, 33),
+                color: Color.fromARGB(255, 2, 2, 2),
                 fontFamily: 'RobotoMono',
                 fontWeight: FontWeight.bold,
               ),
