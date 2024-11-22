@@ -50,8 +50,10 @@ class BodyProfile extends StatelessWidget {
             onChanged: (bool value) {
               Preferences.darkmode = value;
             },
-            activeTrackColor: Colors.yellowAccent, // Color de pista cuando está activado
-            activeColor: Colors.white, // Color del interruptor cuando está activado
+            activeTrackColor:
+                Colors.yellowAccent, // Color de pista cuando está activado
+            activeColor:
+                Colors.white, // Color del interruptor cuando está activado
             subtitle: Text(
               Preferences.darkmode
                   ? 'Modo Oscuro Activado'
@@ -79,10 +81,10 @@ class HeaderProfile extends StatefulWidget {
   final Size size;
 
   @override
-  _HeaderProfileState createState() => _HeaderProfileState();
+  HeaderProfileState createState() => HeaderProfileState();
 }
 
-class _HeaderProfileState extends State<HeaderProfile> {
+class HeaderProfileState extends State<HeaderProfile> {
   double _avatarSize = 100;
   Color _backgroundColor = const Color(0xff2d3e4f);
 
