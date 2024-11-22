@@ -65,7 +65,8 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
         setState(() {
           isLoading = false;
         });
-        throw Exception('Tiempo de espera agotado. No se pudo conectar a la API.');
+        throw Exception(
+            'Tiempo de espera agotado. No se pudo conectar a la API.');
       }
     } on http.ClientException catch (_) {
       if (retries > 0) {
@@ -102,7 +103,8 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
                   padding: const EdgeInsets.all(10), // Relleno interno
                   decoration: BoxDecoration(
                     color: Colors.yellow.shade100, // Fondo amarillo claro
-                    borderRadius: BorderRadius.circular(15), // Bordes redondeados
+                    borderRadius:
+                        BorderRadius.circular(15), // Bordes redondeados
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.2),
@@ -127,7 +129,8 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
                         color: Colors.black87,
                       ),
                     ),
-                    trailing: const Icon(Icons.arrow_forward_ios, color: Colors.black54),
+                    trailing: const Icon(Icons.arrow_forward_ios,
+                        color: Colors.black54),
                     onTap: () {
                       Navigator.push(
                         context,
@@ -149,4 +152,3 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
     return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$id.png';
   }
 }
-
