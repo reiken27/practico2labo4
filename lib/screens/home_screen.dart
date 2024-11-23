@@ -43,7 +43,7 @@ class HomeScreen extends StatelessWidget {
               'assets/images/pokemon.png', // Ruta de la imagen
               width: 350, // Ancho de la imagen
               height: 350, // Alto de la imagen
-              fit: BoxFit.cover, // Ajuste de la imagen
+              fit: BoxFit.cover, 
             ),
             const SizedBox(height: 20),
             // Texto debajo de la imagen

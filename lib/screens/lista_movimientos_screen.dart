@@ -14,10 +14,12 @@ class ListaMovimientosScreen extends StatefulWidget {
 }
 
 class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
+  final TextEditingController searchController = TextEditingController();
   List<dynamic> movimientos = [];
+  List<dynamic> filteredMovimientos = [];
   bool isLoading = false;
-  String? nextUrl; // URL para la siguiente página de resultados
-  bool isDisposed = false; // Para verificar si el widget ha sido desmontado
+  String? nextUrl;
+  bool isDisposed = false;
 
   @override
   void initState() {
@@ -27,7 +29,8 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
 
   @override
   void dispose() {
-    isDisposed = true; // Marca el widget como desmontado
+    isDisposed = true;
+    searchController.dispose();
     super.dispose();
   }
 
@@ -37,9 +40,8 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
     });
 
     try {
-      final response = await http
-          .get(Uri.parse(url))
-          .timeout(const Duration(seconds: 10)); // Timeout de 10 segundos
+      final response =
+          await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -47,6 +49,7 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
         if (!isDisposed) {
           setState(() {
             movimientos.addAll(data['results']);
+            filteredMovimientos = List.from(movimientos);
             nextUrl = data['next'];
             isLoading = false;
           });
@@ -80,6 +83,20 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
     }
   }
 
+  void filterMovimientos(String query) {
+    setState(() {
+      filteredMovimientos = movimientos
+          .where((movimiento) =>
+              movimiento['name'].toLowerCase().contains(query.toLowerCase()))
+          .toList();
+    });
+  }
+
+  void clearSearch() {
+    searchController.clear();
+    filterMovimientos('');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -87,64 +104,88 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
         title: const Text('Lista de Movimientos'),
         centerTitle: true,
       ),
-      body: isLoading && movimientos.isEmpty
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: movimientos.length,
-              itemBuilder: (context, index) {
-                final movimiento = movimientos[index];
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: searchController,
+              decoration: InputDecoration(
+                hintText: 'Buscar movimientos...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.clear),
+                  onPressed: clearSearch,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+              ),
+              onChanged: filterMovimientos,
+            ),
+          ),
+          Expanded(
+            child: isLoading && movimientos.isEmpty
+                ? const Center(child: CircularProgressIndicator())
+                : ListView.builder(
+                    itemCount: filteredMovimientos.length,
+                    itemBuilder: (context, index) {
+                      final movimiento = filteredMovimientos[index];
 
-                int pokemonId = index + 1;
-                String imageUrl = generatePokemonImageUrl(pokemonId);
+                      int pokemonId = index + 1;
+                      String imageUrl = generatePokemonImageUrl(pokemonId);
 
-                return Container(
-                  margin: const EdgeInsets.symmetric(
-                      horizontal: 15, vertical: 10), // Márgenes alrededor
-                  padding: const EdgeInsets.all(10), // Relleno interno
-                  decoration: BoxDecoration(
-                    color: Colors.yellow.shade100, // Fondo amarillo claro
-                    borderRadius:
-                        BorderRadius.circular(15), // Bordes redondeados
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        blurRadius: 8,
-                        spreadRadius: 2,
-                        offset: const Offset(4, 4), // Sombra desplazada
-                      ),
-                    ],
-                  ),
-                  child: ListTile(
-                    leading: Image.network(
-                      imageUrl,
-                      width: 50,
-                      height: 50,
-                      fit: BoxFit.cover,
-                    ),
-                    title: Text(
-                      movimiento['name'].toUpperCase(),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    trailing: const Icon(Icons.arrow_forward_ios,
-                        color: Colors.black54),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => VisualizacionMovimientoScreen(
-                            url: movimiento['url'],
+                      return Container(
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 15, vertical: 10),
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.yellow.shade100,
+                          borderRadius: BorderRadius.circular(15),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 8,
+                              spreadRadius: 2,
+                              offset: const Offset(4, 4),
+                            ),
+                          ],
+                        ),
+                        child: ListTile(
+                          leading: Image.network(
+                            imageUrl,
+                            width: 50,
+                            height: 50,
+                            fit: BoxFit.cover,
                           ),
+                          title: Text(
+                            movimiento['name'].toUpperCase(),
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          trailing: const Icon(Icons.arrow_forward_ios,
+                              color: Colors.black54),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    VisualizacionMovimientoScreen(
+                                  url: movimiento['url'],
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       );
                     },
                   ),
-                );
-              },
-            ),
+          ),
+        ],
+      ),
     );
   }
 
