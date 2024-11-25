@@ -12,13 +12,18 @@ class DrawerMenu extends StatelessWidget {
     {'route': 'custom_list', 'title': 'nova', 'subtitle': ''},
     {
       'route': 'profile',
-      'title': 'Pokemon Black',
-      'subtitle': 'cambia a modo oscuro'
+      'title': 'Configuracion',
+      'subtitle': 'Configuraciones'
     },
     {
       'route': 'lista_movimientos',
       'title': 'Lista Movimientos',
       'subtitle': 'Ver movimientos+ detalles'
+    },
+    {
+      'route': 'lista_pokemon',
+      'title': 'Lista Pokemon',
+      'subtitle': 'Ver pokemon+ detalles'
     },
   ];
 
