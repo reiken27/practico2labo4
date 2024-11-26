@@ -132,9 +132,6 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
                     itemBuilder: (context, index) {
                       final movimiento = filteredMovimientos[index];
 
-                      int pokemonId = index + 1;
-                      String imageUrl = generatePokemonImageUrl(pokemonId);
-
                       return Container(
                         margin: const EdgeInsets.symmetric(
                             horizontal: 15, vertical: 10),
@@ -152,12 +149,6 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
                           ],
                         ),
                         child: ListTile(
-                          leading: Image.network(
-                            imageUrl,
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
-                          ),
                           title: Text(
                             movimiento['name'].toUpperCase(),
                             style: const TextStyle(
@@ -187,9 +178,5 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
         ],
       ),
     );
-  }
-
-  String generatePokemonImageUrl(int id) {
-    return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$id.png';
   }
 }
