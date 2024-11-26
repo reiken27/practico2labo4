@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Importa este paquete para SystemNavigator.pop()
 import 'package:practico2labo4/widgets/drawer_menu.dart';
@@ -40,9 +39,9 @@ class HomeScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-              'assets/images/pokemon.png', // Ruta de la imagen
-              width: 350, // Ancho de la imagen
-              height: 350, // Alto de la imagen
+              'assets/images/pokemon-wall.png', // Ruta de la imagen
+              width: 400, // Ancho de la imagen
+              height: 400, // Alto de la imagen
               fit: BoxFit.cover, 
             ),
             const SizedBox(height: 20),
@@ -59,14 +58,7 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.yellow, // Color Pokémon
-        onPressed: () {
-          log('click button');
-        },
-        child: const Icon(Icons.plus_one),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+
     );
   }
 }
