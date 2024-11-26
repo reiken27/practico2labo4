@@ -51,10 +51,10 @@ flutter:
   assets:
     - assets/loading.gif
     - assets/images/
-    - assets/avatars/ 
     - assets/images/pokemon.png 
     - assets/fonts/
     - assets/images/pokemonblack.png
+    - assets/images/pokemon-wall.png
    
 
   # An image asset can refer to one or more resolution-specific "variants", see
