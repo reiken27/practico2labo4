@@ -1,5 +1,7 @@
-import 'dart:math';
+import 'dart:math'; 
+import 'dart:developer' as dev;
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 
 class DrawerMenu extends StatelessWidget {
@@ -7,23 +9,32 @@ class DrawerMenu extends StatelessWidget {
     {
       'route': 'home',
       'title': 'Pantalla Principal',
-      'subtitle': 'Muestra pantalla principal'
+      'subtitle': 'Muestra pantalla principal',
+      'icon': 'assets/images/pokeball_icon.png',
     },
-    {'route': 'custom_list', 'title': 'nova', 'subtitle': ''},
+    {
+      'route': 'custom_list',
+      'title': 'Nova',
+      'subtitle': '',
+      'icon': 'assets/images/pokeball_icon.png',
+    },
     {
       'route': 'profile',
-      'title': 'Configuracion',
-      'subtitle': 'Configuraciones'
+      'title': 'Configuración',
+      'subtitle': 'Configuraciones',
+      'icon': 'assets/images/pokeball_icon.png',
     },
     {
       'route': 'lista_movimientos',
       'title': 'Lista Movimientos',
-      'subtitle': 'Ver movimientos+ detalles'
+      'subtitle': 'Ver movimientos + detalles',
+      'icon': 'assets/images/pokeball_icon.png',
     },
     {
       'route': 'lista_pokemon',
-      'title': 'Lista Pokemon',
-      'subtitle': 'Ver pokemon+ detalles'
+      'title': 'Lista Pokémon',
+      'subtitle': 'Ver Pokémon + detalles',
+      'icon': 'assets/images/pokeball_icon.png',
     },
   ];
 
@@ -32,46 +43,58 @@ class DrawerMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
+      child: Stack(
         children: [
-          const _DrawerHeaderAlternative(),
-          ...ListTile.divideTiles(
-            context: context,
-            tiles: _menuItems.map((item) {
-              return ListTile(
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 0, horizontal: 15),
-                dense: true,
-                minLeadingWidth: 30,
-                iconColor:
-                    Colors.yellow[700], // Cambio de color rojo a amarillo
-                title: Text(
-                  item['title']!,
-                  style: const TextStyle(
-                    fontFamily: 'FuzzyBubbles', // Tipografía personalizada
-                    fontSize: 20, // Aumentar tamaño de letra
-                    fontWeight: FontWeight.bold,
-                    color: Color.fromARGB(
-                        255, 250, 191, 40), // Cambiar texto a amarillo
-                  ),
-                ),
-                subtitle: Text(
-                  item['subtitle'] ?? '',
-                  style: const TextStyle(
-                    fontFamily: 'RobotoMono',
-                    fontSize: 14, // Tamaño de letra más grande
-                    color: Color.fromARGB(
-                        255, 0, 0, 0), // Cambiar subtítulo a blanco
-                  ),
-                ),
-                leading: const Icon(Icons.arrow_right, size: 28),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.pushNamed(context, item['route']!);
-                },
-              );
-            }).toList(),
+ 
+          ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              const _DrawerHeaderAlternative(),
+              ...ListTile.divideTiles(
+                context: context,
+                tiles: _menuItems.map((item) {
+                  return ListTile(
+                    contentPadding:
+                        const EdgeInsets.symmetric(vertical: 0, horizontal: 15),
+                    dense: true,
+                    minLeadingWidth: 30,
+                    title: Text(
+                      item['title']!,
+                      style: const TextStyle(
+                        fontFamily: 'PokemonSolid', // Tipografía estilo Pokémon
+                        fontSize: 20, // Aumentar tamaño de letra
+                        fontWeight: FontWeight.bold,
+                        color: Color.fromARGB(255, 250, 191, 40), // Amarillo
+                      ),
+                    ),
+                    subtitle: Text(
+                      item['subtitle'] ?? '',
+                      style: const TextStyle(
+                        fontFamily: 'RobotoMono',
+                        fontSize: 14,
+                        color: Colors.white, // Subtítulo en blanco
+                      ),
+                    ),
+                    leading: Image.asset(
+                      item['icon']!,
+                      width: 28,
+                      height: 28,
+                    ),
+                    onTap: () async {
+                    final player = AudioPlayer();
+                    try {
+                      await player.play(AssetSource('sounds/pokeclick.mp3')); // Reproducir sonido
+                    } catch (e) {
+                      dev.log("Error al reproducir el sonido: $e");
+                    }
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, item['route']!);
+                  },
+
+                  );
+                }).toList(),
+              ),
+            ],
           ),
         ],
       ),
@@ -90,37 +113,18 @@ class _DrawerHeaderAlternative extends StatefulWidget {
 class _DrawerHeaderAlternativeState extends State<_DrawerHeaderAlternative> {
   final Random _random = Random();
 
-  // Efectos de animación para los círculos
+  // Efectos de animación para las Pokébolas
   double _circleSize1 = 130.0;
   double _circleSize2 = 100.0;
   double _circleSize3 = 50.0;
   double _circleSize4 = 30.0;
 
-  Color _circleColor1 = Colors.blueAccent.withOpacity(0.4);
-  Color _circleColor2 = Colors.yellow.withOpacity(0.5);
-  Color _circleColor3 = Colors.redAccent.withOpacity(0.4);
-  Color _circleColor4 = Colors.green.withOpacity(0.4);
-
   void _animateCircles() {
     setState(() {
-      // Cambiar el tamaño y color aleatoriamente para crear un efecto visual.
       _circleSize1 = _random.nextDouble() * 150 + 80;
       _circleSize2 = _random.nextDouble() * 120 + 50;
       _circleSize3 = _random.nextDouble() * 60 + 30;
       _circleSize4 = _random.nextDouble() * 50 + 20;
-
-      _circleColor1 = Color.fromARGB(_random.nextInt(256), _random.nextInt(256),
-              _random.nextInt(256), 150)
-          .withOpacity(0.5);
-      _circleColor2 = Color.fromARGB(_random.nextInt(256), _random.nextInt(256),
-              _random.nextInt(256), 150)
-          .withOpacity(0.5);
-      _circleColor3 = Color.fromARGB(_random.nextInt(256), _random.nextInt(256),
-              _random.nextInt(256), 150)
-          .withOpacity(0.5);
-      _circleColor4 = Color.fromARGB(_random.nextInt(256), _random.nextInt(256),
-              _random.nextInt(256), 150)
-          .withOpacity(0.5);
     });
   }
 
@@ -128,6 +132,7 @@ class _DrawerHeaderAlternativeState extends State<_DrawerHeaderAlternative> {
   Widget build(BuildContext context) {
     return DrawerHeader(
       padding: EdgeInsets.zero,
+      decoration: const BoxDecoration(color: Colors.red),
       child: Stack(
         children: [
           Positioned(
@@ -138,10 +143,7 @@ class _DrawerHeaderAlternativeState extends State<_DrawerHeaderAlternative> {
               child: AnimatedContainer(
                 width: _circleSize1,
                 height: _circleSize1,
-                decoration: BoxDecoration(
-                  color: _circleColor1,
-                  shape: BoxShape.circle,
-                ),
+                child: Image.asset('assets/images/pokeball.png'),
                 duration: const Duration(seconds: 1),
                 curve: Curves.easeInOut,
               ),
@@ -155,10 +157,7 @@ class _DrawerHeaderAlternativeState extends State<_DrawerHeaderAlternative> {
               child: AnimatedContainer(
                 width: _circleSize2,
                 height: _circleSize2,
-                decoration: BoxDecoration(
-                  color: _circleColor2,
-                  shape: BoxShape.circle,
-                ),
+                child: Image.asset('assets/images/pokeball.png'),
                 duration: const Duration(seconds: 1),
                 curve: Curves.easeInOut,
               ),
@@ -172,10 +171,7 @@ class _DrawerHeaderAlternativeState extends State<_DrawerHeaderAlternative> {
               child: AnimatedContainer(
                 width: _circleSize3,
                 height: _circleSize3,
-                decoration: BoxDecoration(
-                  color: _circleColor3,
-                  shape: BoxShape.circle,
-                ),
+                child: Image.asset('assets/images/pokeball.png'),
                 duration: const Duration(seconds: 1),
                 curve: Curves.easeInOut,
               ),
@@ -189,10 +185,7 @@ class _DrawerHeaderAlternativeState extends State<_DrawerHeaderAlternative> {
               child: AnimatedContainer(
                 width: _circleSize4,
                 height: _circleSize4,
-                decoration: BoxDecoration(
-                  color: _circleColor4,
-                  shape: BoxShape.circle,
-                ),
+                child: Image.asset('assets/images/pokeball.png'),
                 duration: const Duration(seconds: 1),
                 curve: Curves.easeInOut,
               ),
@@ -202,10 +195,10 @@ class _DrawerHeaderAlternativeState extends State<_DrawerHeaderAlternative> {
             alignment: Alignment.bottomRight,
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: const Text(
-              '[ Pokémon Menu ]',
+              'Pokédex Menu',
               style: TextStyle(
                 fontSize: 18,
-                color: Color.fromARGB(255, 2, 2, 2),
+                color: Colors.white,
                 fontFamily: 'RobotoMono',
                 fontWeight: FontWeight.bold,
               ),
