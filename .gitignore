@@ -44,3 +44,6 @@ app.*.map.json
 /android/gradle.properties
 .gitignore
 .vscode/settings.json
+
+# carpeta linux
+linux/flutter
