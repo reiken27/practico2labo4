@@ -6,9 +6,11 @@ import 'package:practico2labo4/screens/custom_list_screen.dart';
 import 'package:practico2labo4/screens/home_screen.dart';
 import 'package:practico2labo4/screens/lista_movimientos_screen.dart';
 import 'package:practico2labo4/screens/lista_pokemon.dart';
+import 'package:practico2labo4/screens/lista_pokemonid.dart';
 import 'package:practico2labo4/screens/profile_screen.dart';
 import 'package:practico2labo4/themes/default_theme.dart';
 import 'package:provider/provider.dart'; // Importa Provider
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -58,6 +60,7 @@ class MyApp extends StatelessWidget {
             'custom_list_item': (context) => const CustomListItem(),
             'lista_movimientos': (context) => const ListaMovimientosScreen(),
             'lista_pokemon': (context) => const ListaPokemonScreen(),
+            'lista_pokemonid': (context) => const ListaPokemonidScreen(),
           },
         );
       },

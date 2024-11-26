@@ -36,6 +36,12 @@ class DrawerMenu extends StatelessWidget {
       'subtitle': 'Ver Pokémon + detalles',
       'icon': 'assets/images/pokeball_icon.png',
     },
+        {
+      'route': 'lista_pokemonid',
+      'title': 'Pokémon por ID',
+      'subtitle': 'Ver Pokémon + detalles',
+      'icon': 'assets/images/pokeball_icon.png',
+    },
   ];
 
   DrawerMenu({super.key});
