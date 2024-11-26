@@ -34,14 +34,14 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
       drawer: DrawerMenu(),
-      body: Center(
+      body: SizedBox.expand(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
               'assets/images/pokemon-wall.png', // Ruta de la imagen
-              width: 400, // Ancho de la imagen
-              height: 400, // Alto de la imagen
+              width: 390, // Ancho de la imagen
+              height: 620, // Alto de la imagen
               fit: BoxFit.cover, 
             ),
             const SizedBox(height: 20),
@@ -52,7 +52,7 @@ class HomeScreen extends StatelessWidget {
                 fontFamily: 'PokemonFont',
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
-                color: Colors.redAccent,
+                color: Color.fromARGB(255, 85, 82, 255),
               ),
             ),
           ],
