@@ -1,5 +1,5 @@
-import 'dart:math'; 
 import 'dart:developer' as dev;
+import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
@@ -60,19 +60,24 @@ class DrawerMenu extends StatelessWidget {
                     minLeadingWidth: 30,
                     title: Text(
                       item['title']!,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'PokemonSolid', // Tipografía estilo Pokémon
                         fontSize: 20, // Aumentar tamaño de letra
                         fontWeight: FontWeight.bold,
-                        color: Color.fromARGB(255, 250, 191, 40), // Amarillo
+                              color: Theme.of(context).brightness == Brightness.dark
+                            ? const Color.fromARGB(255, 234, 227, 94) // Color para el tema oscuro
+                            : const Color.fromARGB(255, 16, 163, 242), // Color para el tema claro
                       ),
                     ),
                     subtitle: Text(
                       item['subtitle'] ?? '',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: 'RobotoMono',
                         fontSize: 14,
-                        color: Colors.white, // Subtítulo en blanco
+                        fontWeight: FontWeight.bold,
+                              color: Theme.of(context).brightness == Brightness.dark
+                            ? const Color.fromARGB(255, 16, 163, 242) // Color para el tema oscuro
+                            : const Color.fromARGB(255, 208, 51, 20),
                       ),
                     ),
                     leading: Image.asset(
