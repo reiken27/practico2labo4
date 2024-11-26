@@ -6,3 +6,5 @@ export 'package:practico2labo4/screens/lista_movimientos_screen.dart';
 export 'package:practico2labo4/screens/visualizacion_movimiento_screen.dart';
 export 'package:practico2labo4/screens/lista_pokemon.dart';
 export 'package:practico2labo4/screens/visualizacion_pokemon_screen.dart';
+export 'package:practico2labo4/screens/lista_pokemonid.dart';
+export 'package:practico2labo4/screens/visualizacion_pokemonid_screen.dart';
