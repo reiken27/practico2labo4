@@ -36,10 +36,16 @@ class DrawerMenu extends StatelessWidget {
       'subtitle': 'Ver Pokémon + detalles',
       'icon': 'assets/images/pokeball_icon.png',
     },
-        {
+    {
       'route': 'lista_pokemonid',
       'title': 'Pokémon por ID',
       'subtitle': 'Ver Pokémon + detalles',
+      'icon': 'assets/images/pokeball_icon.png',
+    },
+    {
+      'route': 'lista_items',
+      'title': 'Lista Items',
+      'subtitle': 'Ver Items + detalles',
       'icon': 'assets/images/pokeball_icon.png',
     },
   ];
@@ -51,7 +57,6 @@ class DrawerMenu extends StatelessWidget {
     return Drawer(
       child: Stack(
         children: [
- 
           ListView(
             padding: EdgeInsets.zero,
             children: [
@@ -70,9 +75,11 @@ class DrawerMenu extends StatelessWidget {
                         fontFamily: 'PokemonSolid', // Tipografía estilo Pokémon
                         fontSize: 20, // Aumentar tamaño de letra
                         fontWeight: FontWeight.bold,
-                              color: Theme.of(context).brightness == Brightness.dark
-                            ? const Color.fromARGB(255, 234, 227, 94) // Color para el tema oscuro
-                            : const Color.fromARGB(255, 16, 163, 242), // Color para el tema claro
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? const Color.fromARGB(
+                                255, 234, 227, 94) // Color para el tema oscuro
+                            : const Color.fromARGB(
+                                255, 16, 163, 242), // Color para el tema claro
                       ),
                     ),
                     subtitle: Text(
@@ -81,8 +88,9 @@ class DrawerMenu extends StatelessWidget {
                         fontFamily: 'RobotoMono',
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
-                              color: Theme.of(context).brightness == Brightness.dark
-                            ? const Color.fromARGB(255, 16, 163, 242) // Color para el tema oscuro
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? const Color.fromARGB(
+                                255, 16, 163, 242) // Color para el tema oscuro
                             : const Color.fromARGB(255, 208, 51, 20),
                       ),
                     ),
@@ -92,16 +100,16 @@ class DrawerMenu extends StatelessWidget {
                       height: 28,
                     ),
                     onTap: () async {
-                    final player = AudioPlayer();
-                    try {
-                      await player.play(AssetSource('sounds/pokeclick.mp3')); // Reproducir sonido
-                    } catch (e) {
-                      dev.log("Error al reproducir el sonido: $e");
-                    }
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, item['route']!);
-                  },
-
+                      final player = AudioPlayer();
+                      try {
+                        await player.play(AssetSource(
+                            'sounds/pokeclick.mp3')); // Reproducir sonido
+                      } catch (e) {
+                        dev.log("Error al reproducir el sonido: $e");
+                      }
+                      Navigator.pop(context);
+                      Navigator.pushNamed(context, item['route']!);
+                    },
                   );
                 }).toList(),
               ),
