@@ -38,6 +38,14 @@ class _VisualizacionMovimientoScreenState
 
   @override
   Widget build(BuildContext context) {
+    // Obtenemos colores adaptados al tema
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
+    final favoriteTextColor = isDarkMode ? Colors.amber : Colors.redAccent;
+    final commentTextColor = isDarkMode ? Colors.cyan : Colors.teal;
+    final inputBorderColor = isDarkMode ? Colors.grey : Colors.black38;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detalles del Movimiento'),
@@ -59,7 +67,9 @@ class _VisualizacionMovimientoScreenState
                   child: Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.9),
+                      color: isDarkMode
+                          ? Colors.grey[850]!.withOpacity(0.9)
+                          : Colors.white.withOpacity(0.9),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
@@ -78,58 +88,76 @@ class _VisualizacionMovimientoScreenState
                           child: Text(
                             movimiento?['name']?.toUpperCase() ?? '',
                             textAlign: TextAlign.center,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 30,
                               fontWeight: FontWeight.bold,
-                              color: Colors.indigo,
+                              color: isDarkMode ? Colors.white : Colors.indigo,
                             ),
                           ),
                         ),
                         const SizedBox(height: 24),
 
                         // Detalles destacados
-                        const Text(
-                          'Detalles Destacados',
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.teal,
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            image: const DecorationImage(
+                              image: AssetImage(
+                                  'assets/images/pokemondetalle.jpg'),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Detalles Destacados',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDarkMode
+                                      ? Colors.lightBlue
+                                      : Colors.teal,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              if (movimiento?['power'] != null)
+                                DetailRow(
+                                  label: 'Poder',
+                                  value: '${movimiento?['power']}',
+                                ),
+                              if (movimiento?['accuracy'] != null)
+                                DetailRow(
+                                  label: 'Precisión',
+                                  value: '${movimiento?['accuracy']}',
+                                ),
+                              if (movimiento?['pp'] != null)
+                                DetailRow(
+                                  label: 'PP',
+                                  value: '${movimiento?['pp']}',
+                                ),
+                              if (movimiento?['effect_entries'] != null &&
+                                  (movimiento?['effect_entries'] as List)
+                                      .isNotEmpty)
+                                DetailRow(
+                                  label: 'Efecto',
+                                  value:
+                                      '${movimiento?['effect_entries'][0]['effect']}',
+                                ),
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 16),
-
-                        if (movimiento?['power'] != null)
-                          DetailRow(
-                            label: 'Poder',
-                            value: '${movimiento?['power']}',
-                          ),
-                        if (movimiento?['accuracy'] != null)
-                          DetailRow(
-                            label: 'Precisión',
-                            value: '${movimiento?['accuracy']}',
-                          ),
-                        if (movimiento?['pp'] != null)
-                          DetailRow(
-                            label: 'PP',
-                            value: '${movimiento?['pp']}',
-                          ),
-                        if (movimiento?['effect_entries'] != null &&
-                            (movimiento?['effect_entries'] as List).isNotEmpty)
-                          DetailRow(
-                            label: 'Efecto',
-                            value:
-                                '${movimiento?['effect_entries'][0]['effect']}',
-                          ),
 
                         const SizedBox(height: 24),
 
                         // Comentarios y favoritos
-                        const Text(
+                        Text(
                           'Comentarios y Favoritos',
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 150, 0, 0),
+                            color: commentTextColor,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -139,9 +167,18 @@ class _VisualizacionMovimientoScreenState
                           controller: _controller,
                           decoration: InputDecoration(
                             labelText: 'Ingresa un comentario',
+                            labelStyle: TextStyle(
+                              color: commentTextColor,
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: inputBorderColor,
+                              ),
                             ),
+                          ),
+                          style: TextStyle(
+                            color: isDarkMode ? Colors.white : Colors.black87,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -150,11 +187,12 @@ class _VisualizacionMovimientoScreenState
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
+                            Text(
                               'Es favorito:',
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
+                                color: favoriteTextColor,
                               ),
                             ),
                             Switch(
@@ -186,6 +224,9 @@ class DetailRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -193,18 +234,22 @@ class DetailRow extends StatelessWidget {
         children: [
           Text(
             '$label: ',
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 20,
-              color: Colors.indigo,
+              color: isDarkMode
+                  ? Colors.lightBlue
+                  : const Color.fromARGB(255, 236, 3, 3),
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 20,
-                color: Colors.black87,
+                color: isDarkMode
+                    ? const Color.fromARGB(249, 255, 255, 255)
+                    : Colors.black87,
               ),
             ),
           ),

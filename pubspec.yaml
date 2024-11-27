@@ -52,7 +52,6 @@ flutter:
   assets:
     - assets/loading.gif
     - assets/images/
-   
     - assets/fonts/
     - assets/images/pokemonblack.png
     - assets/images/pokemon-wall.png
@@ -62,6 +61,9 @@ flutter:
     - assets/images/pokebola.gif
     - assets/images/pokeback.png
     - assets/images/pokefondo.jpg
+    - assets/images/pokemondetalle.jpg
+
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
