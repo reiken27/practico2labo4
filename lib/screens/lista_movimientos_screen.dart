@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:practico2labo4/screens/screens.dart';
 import 'package:practico2labo4/screens/visualizacion_movimiento_screen.dart';
 
 class ListaMovimientosScreen extends StatefulWidget {
@@ -20,6 +19,15 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
   bool isLoading = false;
   String? nextUrl;
   bool isDisposed = false;
+
+  final List<Color> colors = [
+    Colors.lightBlue.shade100,
+    Colors.orange.shade100,
+    Colors.green.shade100,
+    Colors.pink.shade100,
+    Colors.purple.shade100,
+    Colors.yellow.shade100,
+  ];
 
   @override
   void initState() {
@@ -131,13 +139,16 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
                     itemCount: filteredMovimientos.length,
                     itemBuilder: (context, index) {
                       final movimiento = filteredMovimientos[index];
+                      final colorIndex = index % colors.length;
 
-                      return Container(
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
                         margin: const EdgeInsets.symmetric(
                             horizontal: 15, vertical: 10),
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Colors.yellow.shade100,
+                          color: colors[colorIndex],
                           borderRadius: BorderRadius.circular(15),
                           boxShadow: [
                             BoxShadow(
@@ -149,6 +160,11 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
                           ],
                         ),
                         child: ListTile(
+                          leading: Image.asset(
+                            'assets/images/pokebola.gif', // Asegúrate de que el archivo esté disponible.
+                            height: 60, // Tamaño más grande para la Pokebola.
+                            width: 60,
+                          ),
                           title: Text(
                             movimiento['name'].toUpperCase(),
                             style: const TextStyle(
