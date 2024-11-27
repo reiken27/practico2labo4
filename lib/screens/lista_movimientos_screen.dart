@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:practico2labo4/screens/screens.dart';
 import 'package:practico2labo4/screens/visualizacion_movimiento_screen.dart';
 
 class ListaMovimientosScreen extends StatefulWidget {
@@ -97,6 +97,17 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
     filterMovimientos('');
   }
 
+  /// Generar un color único basado en el hash del nombre del movimiento
+  Color generateColorForName(String name) {
+    final Random random = Random(name.hashCode);
+    return Color.fromRGBO(
+      random.nextInt(256), // Rojo
+      random.nextInt(256), // Verde
+      random.nextInt(256), // Azul
+      1, // Opacidad
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -131,16 +142,16 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
                     itemCount: filteredMovimientos.length,
                     itemBuilder: (context, index) {
                       final movimiento = filteredMovimientos[index];
+                      final color = generateColorForName(movimiento['name']);
 
-                      int pokemonId = index + 1;
-                      String imageUrl = generatePokemonImageUrl(pokemonId);
-
-                      return Container(
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeInOut,
                         margin: const EdgeInsets.symmetric(
                             horizontal: 15, vertical: 10),
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: Colors.yellow.shade100,
+                          color: color,
                           borderRadius: BorderRadius.circular(15),
                           boxShadow: [
                             BoxShadow(
@@ -152,11 +163,10 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
                           ],
                         ),
                         child: ListTile(
-                          leading: Image.network(
-                            imageUrl,
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
+                          leading: Image.asset(
+                            'assets/images/pokebola.gif', // Asegúrate de que el archivo esté disponible.
+                            height: 60, // Tamaño más grande para la Pokebola.
+                            width: 60,
                           ),
                           title: Text(
                             movimiento['name'].toUpperCase(),
@@ -187,9 +197,5 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
         ],
       ),
     );
-  }
-
-  String generatePokemonImageUrl(int id) {
-    return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$id.png';
   }
 }
