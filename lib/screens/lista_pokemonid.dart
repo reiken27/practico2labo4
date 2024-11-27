@@ -162,16 +162,17 @@ class _ListaPokemonidScreenState extends State<ListaPokemonidScreen> {
             child: TextField(
               controller: searchController,
               decoration: InputDecoration(
-                hintText: 'Buscar por nombre o ID...',
-                prefixIcon: const Icon(Icons.search),
+                hintText: 'Buscar por ID...',
+                prefixIcon: const Icon(Icons.search, color: Colors.blue), 
                 suffixIcon: IconButton(
-                  icon: const Icon(Icons.clear),
+                  icon: const Icon(Icons.clear, color: Colors.blue), 
                   onPressed: clearSearch,
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12.0),
+                  borderSide: const BorderSide(color: Colors.blue), // 
                 ),
-              ),
+  ),
               onChanged: filterPokemon,
             ),
           ),
@@ -252,12 +253,13 @@ class _ListaPokemonidScreenState extends State<ListaPokemonidScreen> {
                                           );
                                         },
                                       ),
-                                      const SizedBox(height: 8.0),
+                                      const SizedBox(height: 1.0),
                                       Text(
                                         '#${pokemons.indexOf(pokemon) + 1}',
                                         style: const TextStyle(
-                                          fontSize: 16.0,
+                                          fontSize: 20.0,
                                           fontWeight: FontWeight.bold,
+                                          fontFamily: 'Roboto',
                                           color: Colors.black87,
                                         ),
                                       ),
@@ -265,6 +267,8 @@ class _ListaPokemonidScreenState extends State<ListaPokemonidScreen> {
                                         pokemon['name'].toUpperCase(),
                                         style: const TextStyle(
                                           fontSize: 14.0,
+                                          fontWeight: FontWeight.bold,
+                                          fontFamily: 'Roboto',
                                           color: Colors.black54,
                                         ),
                                       ),
