@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -19,15 +20,6 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
   bool isLoading = false;
   String? nextUrl;
   bool isDisposed = false;
-
-  final List<Color> colors = [
-    Colors.lightBlue.shade100,
-    Colors.orange.shade100,
-    Colors.green.shade100,
-    Colors.pink.shade100,
-    Colors.purple.shade100,
-    Colors.yellow.shade100,
-  ];
 
   @override
   void initState() {
@@ -105,6 +97,17 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
     filterMovimientos('');
   }
 
+  /// Generar un color único basado en el hash del nombre del movimiento
+  Color generateColorForName(String name) {
+    final Random random = Random(name.hashCode);
+    return Color.fromRGBO(
+      random.nextInt(256), // Rojo
+      random.nextInt(256), // Verde
+      random.nextInt(256), // Azul
+      1, // Opacidad
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -139,7 +142,7 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
                     itemCount: filteredMovimientos.length,
                     itemBuilder: (context, index) {
                       final movimiento = filteredMovimientos[index];
-                      final colorIndex = index % colors.length;
+                      final color = generateColorForName(movimiento['name']);
 
                       return AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
@@ -148,7 +151,7 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
                             horizontal: 15, vertical: 10),
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                          color: colors[colorIndex],
+                          color: color,
                           borderRadius: BorderRadius.circular(15),
                           boxShadow: [
                             BoxShadow(
