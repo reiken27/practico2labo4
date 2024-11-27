@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:practico2labo4/screens/screens.dart';
 import 'package:practico2labo4/screens/visualizacion_item_screen.dart';
 
+
 class ListaItemsScreen extends StatefulWidget {
   const ListaItemsScreen({super.key});
 
@@ -150,20 +151,26 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
                       final item = filteredItems[index];
                       String imageUrl = item['imageUrl'] ?? '';  // Usamos la URL almacenada
 
-                      return Container(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 15, vertical: 10),
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.yellow.shade100,
-                          borderRadius: BorderRadius.circular(15),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 8,
-                              spreadRadius: 2,
-                              offset: const Offset(4, 4),
-                            ),
+                     return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [
+                          Colors.yellow,
+                          Colors.orange,    
+                        ],
+                        begin: Alignment.topLeft, 
+                        end: Alignment.bottomRight, 
+                      ),
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color.fromARGB(255, 71, 119, 250).withOpacity(0.2),
+                          blurRadius: 8,
+                          spreadRadius: 2,
+                          offset: const Offset(4, 4),
+                        ),
                           ],
                         ),
                         child: ListTile(
@@ -178,9 +185,9 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
                           title: Text(
                             item['name'].toUpperCase(),
                             style: const TextStyle(
-                              fontSize: 16,
+                              fontSize: 19,
                               fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                              color: Color.fromARGB(255, 71, 119, 250),
                             ),
                           ),
                           trailing: const Icon(Icons.arrow_forward_ios,
