@@ -8,6 +8,7 @@ import 'package:practico2labo4/screens/lista_movimientos_screen.dart';
 import 'package:practico2labo4/screens/lista_pokemon.dart';
 import 'package:practico2labo4/screens/lista_pokemonid.dart';
 import 'package:practico2labo4/screens/profile_screen.dart';
+import 'package:practico2labo4/screens/lista_items.dart';
 import 'package:practico2labo4/themes/default_theme.dart';
 import 'package:provider/provider.dart'; // Importa Provider
 
@@ -61,6 +62,7 @@ class MyApp extends StatelessWidget {
             'lista_movimientos': (context) => const ListaMovimientosScreen(),
             'lista_pokemon': (context) => const ListaPokemonScreen(),
             'lista_pokemonid': (context) => const ListaPokemonidScreen(),
+            'lista_items': (context) => const ListaItemsScreen(),
           },
         );
       },
