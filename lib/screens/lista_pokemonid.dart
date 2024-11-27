@@ -19,11 +19,13 @@ class _ListaPokemonidScreenState extends State<ListaPokemonidScreen> {
   bool isLoading = false;
   String? nextUrl;
   bool isDisposed = false;
+  Map<String, Color> typeColors = {};
 
   @override
   void initState() {
     super.initState();
     fetchPokemon('https://pokeapi.co/api/v2/pokemon');
+    initializeTypeColors();
   }
 
   @override
@@ -31,6 +33,31 @@ class _ListaPokemonidScreenState extends State<ListaPokemonidScreen> {
     isDisposed = true;
     searchController.dispose();
     super.dispose();
+  }
+
+  void initializeTypeColors() {
+    typeColors = {
+      'normal': const Color.fromARGB(255, 168, 167, 122),
+      'fighting': const Color.fromARGB(255, 194, 104, 101),
+      'flying': const Color.fromARGB(255, 169, 143, 243),
+      'poison': const Color.fromARGB(255, 163, 62, 161),
+      'ground': const Color.fromARGB(255, 226, 191, 101),
+      'rock': const Color.fromARGB(255, 182, 161, 54),
+      'bug': const Color.fromARGB(255, 166, 185, 26),
+      'ghost': const Color.fromARGB(255, 115, 87, 151),
+      'steel': const Color.fromARGB(255, 183, 183, 206),
+      'fire': const Color.fromARGB(255, 238, 129, 48),
+      'water': const Color.fromARGB(255, 99, 144, 240),
+      'grass': const Color.fromARGB(255, 122, 199, 76),
+      'electric': const Color.fromARGB(255, 247, 208, 44),
+      'psychic': const Color.fromARGB(255, 249, 85, 135),
+      'ice': const Color.fromARGB(255, 150, 217, 214),
+      'dragon': const Color.fromARGB(255, 111, 53, 252),
+      'dark': const Color.fromARGB(255, 112, 87, 70),
+      'fairy': const Color.fromARGB(255, 214, 133, 173),
+      'unknown': const Color.fromARGB(255, 190, 190, 190),
+      'stellar': const Color.fromARGB(255, 0, 128, 128),
+    };
   }
 
   Future<void> fetchPokemon(String url, {int retries = 3}) async {
@@ -82,11 +109,29 @@ class _ListaPokemonidScreenState extends State<ListaPokemonidScreen> {
     }
   }
 
+  // Método que obtiene los tipos del Pokémon desde la API
+  Future<List<String>> fetchPokemonTypes(String url) async {
+    try {
+      final response =
+          await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final types = data['types'] as List<dynamic>;
+        return types.map((type) => type['type']['name'] as String).toList();
+      }
+    } catch (e) {
+      return [];
+    }
+
+    return [];
+  }
+
   void filterPokemon(String query) {
     setState(() {
       filteredPokemon = pokemons.where((pokemon) {
         final name = pokemon['name'].toLowerCase();
-        final index = pokemons.indexOf(pokemon) + 1; // El índice representa el ID
+        final index = pokemons.indexOf(pokemon) + 1;
         return name.contains(query.toLowerCase()) || index.toString() == query;
       }).toList();
     });
@@ -98,7 +143,6 @@ class _ListaPokemonidScreenState extends State<ListaPokemonidScreen> {
   }
 
   String getPokemonImageUrl(int index) {
-    // PokeAPI usa IDs consecutivos para generar imágenes oficiales
     return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${index + 1}.png';
   }
 
@@ -106,8 +150,10 @@ class _ListaPokemonidScreenState extends State<ListaPokemonidScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Lista de Pokémon'),
+        title: const Text('Lista de Pokémon por ID'),
         centerTitle: true,
+        backgroundColor: const Color.fromARGB(255, 121, 199, 248), 
+        foregroundColor: Colors.white, 
       ),
       body: Column(
         children: [
@@ -132,75 +178,105 @@ class _ListaPokemonidScreenState extends State<ListaPokemonidScreen> {
           Expanded(
             child: isLoading && pokemons.isEmpty
                 ? const Center(child: CircularProgressIndicator())
-                : GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2, // Número de columnas
-                      childAspectRatio: 1.0, // Relación de aspecto
-                      crossAxisSpacing: 8.0, // Espacio entre columnas
-                      mainAxisSpacing: 8.0, // Espacio entre filas
-                    ),
-                    padding: const EdgeInsets.all(8.0),
-                    itemCount: filteredPokemon.length,
-                    itemBuilder: (context, index) {
-                      final pokemon = filteredPokemon[index];
-                      final imageUrl = getPokemonImageUrl(
-                          pokemons.indexOf(pokemon)); // Ajustar para IDs
+                : Stack(
+                    children: [
+                      // Fondo de la imagen
+                      Positioned.fill(
+                        child: Image.asset(
+                          'assets/images/pokeback.png',
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      // GridView con los Pokémon
+                      GridView.builder(
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 1.0,
+                          crossAxisSpacing: 8.0,
+                          mainAxisSpacing: 8.0,
+                        ),
+                        padding: const EdgeInsets.all(8.0),
+                        itemCount: filteredPokemon.length,
+                        itemBuilder: (context, index) {
+                          final pokemon = filteredPokemon[index];
+                          final imageUrl = getPokemonImageUrl(
+                              pokemons.indexOf(pokemon)); 
+                          final pokemonUrl = pokemon['url'];
 
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => VisualizacionPokemonScreen(
-                                url: pokemon['url'],
-                              ),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.green.shade100,
-                            borderRadius: BorderRadius.circular(12.0),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.network(
-                                imageUrl,
-                                width: 80,
-                                height: 80,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  // Aquí se carga la imagen por defecto
-                                  return Image.asset(
-                                    'assets/images/pokeball.png', // Ruta de tu imagen local
-                                    width: 80,
-                                    height: 80,
-                                    fit: BoxFit.cover,
+                          return FutureBuilder<List<String>>(
+                            future: fetchPokemonTypes(pokemonUrl),
+                            builder: (context, snapshot) {
+                              final types = snapshot.data ?? [];
+                              final color = types.isNotEmpty
+                                  ? typeColors[types.first] ?? Colors.grey
+                                  : Colors.grey;
+
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => VisualizacionPokemonScreen(
+                                        url: pokemon['url'],
+                                      ),
+                                    ),
                                   );
                                 },
-                              ),
-                              const SizedBox(height: 8.0),
-                              Text(
-                                '#${pokemons.indexOf(pokemon) + 1}',
-                                style: const TextStyle(
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12.0),
+                                    
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,  
+                                      end: Alignment.bottomCenter,  
+                                      colors: [
+                                        color.withOpacity(0.3),  
+                                        color,  
+                                      ],
+                                    ),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image.network(
+                                        imageUrl,
+                                        width: 120,
+                                        height: 120,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return Image.asset(
+                                            'assets/images/pokeball.png',
+                                            width: 120,
+                                            height: 120,
+                                            fit: BoxFit.cover,
+                                          );
+                                        },
+                                      ),
+                                      const SizedBox(height: 8.0),
+                                      Text(
+                                        '#${pokemons.indexOf(pokemon) + 1}',
+                                        style: const TextStyle(
+                                          fontSize: 16.0,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black87,
+                                        ),
+                                      ),
+                                      Text(
+                                        pokemon['name'].toUpperCase(),
+                                        style: const TextStyle(
+                                          fontSize: 14.0,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              Text(
-                                pokemon['name'].toUpperCase(),
-                                style: const TextStyle(
-                                  fontSize: 14.0,
-                                  color: Colors.black54,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ],
                   ),
           ),
         ],
