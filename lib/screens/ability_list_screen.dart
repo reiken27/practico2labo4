@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:http/http.dart' as http;
 import 'package:practico2labo4/screens/screens.dart';
 
@@ -19,6 +20,7 @@ class _AbilityListScreenState extends State<AbilityListScreen> {
   bool isLoading = false;
   String? nextUrl;
   bool isDisposed = false;
+  int? tappedAbilityIndex; // Para guardar el índice del elemento presionado
 
   @override
   void initState() {
@@ -102,6 +104,7 @@ class _AbilityListScreenState extends State<AbilityListScreen> {
       appBar: AppBar(
         title: const Text('Ability List'),
         centerTitle: true,
+        backgroundColor: const Color.fromARGB(255, 43, 45, 66),
       ),
       body: Column(
         children: [
@@ -110,7 +113,7 @@ class _AbilityListScreenState extends State<AbilityListScreen> {
             child: TextField(
               controller: searchController,
               decoration: InputDecoration(
-                hintText: 'Buscar habilidades...',
+                hintText: 'Search ability...',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.clear),
@@ -131,43 +134,70 @@ class _AbilityListScreenState extends State<AbilityListScreen> {
                     itemBuilder: (context, index) {
                       final ability = filteredAbility[index];
 
-                      return Container(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 15, vertical: 10),
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.yellow.shade100,
-                          borderRadius: BorderRadius.circular(15),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 8,
-                              spreadRadius: 2,
-                              offset: const Offset(4, 4),
-                            ),
-                          ],
-                        ),
-                        child: ListTile(
-                          title: Text(
-                            ability['name'].toUpperCase(),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          trailing: const Icon(Icons.arrow_forward_ios,
-                              color: Colors.black54),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AbilityListItem(
-                                  url: ability['url'],
-                                ),
+                      return InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AbilityListItem(
+                                url: ability['url'],
                               ),
-                            );
-                          },
+                            ),
+                          );
+                          FocusManager.instance.primaryFocus?.unfocus();
+                        },
+                        onTapDown: (_) {
+                          setState(() {
+                            tappedAbilityIndex =
+                                index; // Guardar índice del presionado
+                          });
+                        },
+                        onTapUp: (_) {
+                          setState(() {
+                            tappedAbilityIndex = null; // Resetear al soltar
+                          });
+                        },
+                        onTapCancel: () {
+                          setState(() {
+                            tappedAbilityIndex = null; // Resetear si cancela
+                          });
+                        },
+                        highlightColor: Colors
+                            .transparent, // Eliminar el "highlight" al presionar
+                        splashColor:
+                            Colors.transparent, // Eliminar el efecto "splash"
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: tappedAbilityIndex == index
+                                ? const Color.fromARGB(
+                                    255, 141, 153, 174) // Color presionado
+                                : const Color.fromARGB(
+                                    255, 43, 45, 66), // Color normal
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2),
+                                blurRadius: 8,
+                                spreadRadius: 2,
+                                offset: const Offset(4, 4),
+                              ),
+                            ],
+                          ),
+                          child: ListTile(
+                            title: Text(
+                              ability['name'].toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 237, 242, 244),
+                              ),
+                            ),
+                            trailing: const Icon(Icons.arrow_forward_ios,
+                                color: Color.fromARGB(255, 237, 242, 244)),
+                          ),
                         ),
                       );
                     },

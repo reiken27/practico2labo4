@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:practico2labo4/screens/visualizacion_pokemon_screen.dart';
@@ -14,6 +13,10 @@ class AbilityListItem extends StatefulWidget {
 
 class _AbilityListItemState extends State<AbilityListItem> {
   Map<String, dynamic>? ability;
+  bool isFavorite = false;
+  final _controller = TextEditingController();
+  Set<int> selectedPokemonIds = Set(); // Para manejar los Pokémon seleccionados
+  int? tappedPokemonId; // Para manejar el Pokémon que está siendo presionado
 
   @override
   void initState() {
@@ -37,6 +40,8 @@ class _AbilityListItemState extends State<AbilityListItem> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Ability Detail'),
+        centerTitle: true,
+        backgroundColor: const Color.fromARGB(255, 43, 45, 66),
       ),
       body: ability == null
           ? const Center(child: CircularProgressIndicator())
@@ -46,7 +51,7 @@ class _AbilityListItemState extends State<AbilityListItem> {
                 child: Container(
                   padding: const EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
-                    color: Colors.yellow.shade100,
+                    color: const Color.fromARGB(255, 239, 35, 60),
                     borderRadius: BorderRadius.circular(15),
                     boxShadow: [
                       BoxShadow(
@@ -67,7 +72,7 @@ class _AbilityListItemState extends State<AbilityListItem> {
                           style: const TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            color: Color.fromARGB(255, 0, 48, 73),
                           ),
                         ),
                       ),
@@ -84,13 +89,16 @@ class _AbilityListItemState extends State<AbilityListItem> {
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
+                                  color: Color.fromARGB(255, 43, 45, 66),
                                 ),
                               ),
                               Expanded(
                                 child: Text(
                                   '${ability?['flavor_text_entries'][1]['flavor_text'] ?? 'No description available'}',
                                   style: const TextStyle(
-                                      fontSize: 16, color: Colors.black87),
+                                    fontSize: 16,
+                                    color: Color.fromARGB(255, 237, 242, 244),
+                                  ),
                                 ),
                               ),
                             ],
@@ -108,6 +116,7 @@ class _AbilityListItemState extends State<AbilityListItem> {
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
+                                  color: Color.fromARGB(255, 43, 45, 66),
                                 ),
                               ),
                               Expanded(
@@ -115,7 +124,7 @@ class _AbilityListItemState extends State<AbilityListItem> {
                                   '${ability?['effect_entries'][1]['effect'] ?? 'No effect available'}',
                                   style: const TextStyle(
                                     fontSize: 18,
-                                    color: Colors.black87,
+                                    color: Color.fromARGB(255, 237, 242, 244),
                                   ),
                                 ),
                               ),
@@ -124,11 +133,29 @@ class _AbilityListItemState extends State<AbilityListItem> {
                         ),
                       const SizedBox(height: 16),
                       // Lista de Pokémon asociados
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          const Text(
+                            'Add to favorites:',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                          Switch(
+                            value: isFavorite,
+                            onChanged: (value) {
+                              setState(() {
+                                isFavorite = value;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
                       const Text(
                         'Pokémon with this ability:',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
+                          color: Color.fromARGB(255, 43, 45, 66),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -140,22 +167,7 @@ class _AbilityListItemState extends State<AbilityListItem> {
                           final pokemonId = extractPokemonId(pokemonUrl);
                           final imageUrl = generatePokemonImageUrl(pokemonId);
 
-                          return ListTile(
-                            leading: Image.network(
-                              imageUrl,
-                              width: 80,
-                              height: 80,
-                              fit: BoxFit.cover,
-                            ),
-                            title: Text(
-                              pokemonName.toUpperCase(),
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            trailing: const Icon(Icons.chevron_right),
+                          return InkWell(
                             onTap: () {
                               Navigator.push(
                                 context,
@@ -166,10 +178,91 @@ class _AbilityListItemState extends State<AbilityListItem> {
                                   ),
                                 ),
                               );
+                              FocusManager.instance.primaryFocus?.unfocus();
                             },
+                            onTapDown: (_) {
+                              setState(() {
+                                tappedPokemonId =
+                                    pokemonId; // Marcar el Pokémon como presionado
+                              });
+                            },
+                            onTapUp: (_) {
+                              setState(() {
+                                tappedPokemonId =
+                                    null; // Quitar el estado de presionado
+                              });
+                            },
+                            onTapCancel: () {
+                              setState(() {
+                                tappedPokemonId =
+                                    null; // Quitar el estado si el toque es cancelado
+                              });
+                            },
+                            child: Container(
+                              margin: const EdgeInsets.symmetric(
+                                  vertical: 5.0), // Separación entre elementos
+                              padding: const EdgeInsets.all(5.0),
+                              decoration: BoxDecoration(
+                                color: tappedPokemonId == pokemonId
+                                    ? const Color.fromARGB(255, 141, 153,
+                                        174) // Color cuando está siendo presionado
+                                    : const Color.fromARGB(
+                                        255, 43, 45, 66), // Color normal
+                                borderRadius: BorderRadius.circular(12),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.1),
+                                    blurRadius: 8,
+                                    offset: const Offset(2, 2),
+                                  ),
+                                ],
+                              ),
+                              child: ListTile(
+                                leading: Image.network(
+                                  imageUrl,
+                                  width: 80,
+                                  height: 80,
+                                  fit: BoxFit.values[0],
+                                ),
+                                title: Text(
+                                  pokemonName.toUpperCase(),
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color.fromARGB(255, 237, 242, 244),
+                                  ),
+                                ),
+                                trailing: const Icon(Icons.chevron_right,
+                                    color: Color.fromARGB(255, 237, 242, 244)),
+                              ),
+                            ),
                           );
                         }).toList(),
                       ),
+                      const Text(
+                        'COMMENTS',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black54,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Campo de comentarios
+                      TextFormField(
+                        style: TextStyle(color: Colors.black),
+                        controller: _controller,
+                        decoration: const InputDecoration(
+                            labelStyle: TextStyle(color: Colors.black),
+                            labelText: 'Insert Comment',
+                            border: OutlineInputBorder(),
+                            fillColor: Colors.white70,
+                            filled: true),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Switch para marcar como favorito
                     ],
                   ),
                 ),
@@ -185,37 +278,5 @@ class _AbilityListItemState extends State<AbilityListItem> {
   int extractPokemonId(String url) {
     final idMatch = RegExp(r'/(\d+)/$').firstMatch(url);
     return idMatch != null ? int.parse(idMatch.group(1)!) : 0;
-  }
-}
-
-class PokemonDetailScreen extends StatelessWidget {
-  final String name;
-  final String imageUrl;
-
-  const PokemonDetailScreen(this.name, this.imageUrl, {super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(name.toUpperCase()),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.network(imageUrl, width: 200, height: 200),
-            const SizedBox(height: 16),
-            Text(
-              name.toUpperCase(),
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
