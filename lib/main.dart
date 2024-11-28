@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:practico2labo4/helpers/preferences.dart';
 import 'package:practico2labo4/provider/theme_provider.dart';
+import 'package:practico2labo4/screens/ability_list_screen.dart';
 import 'package:practico2labo4/screens/custom_list_item.dart';
 import 'package:practico2labo4/screens/custom_list_screen.dart';
 import 'package:practico2labo4/screens/home_screen.dart';
@@ -56,6 +57,7 @@ class MyApp extends StatelessWidget {
             'profile': (context) => const ProfileScreen(),
             'custom_list_item': (context) => const CustomListItem(),
             'lista_movimientos': (context) => const ListaMovimientosScreen(),
+            'ability_list': (context) => const AbilityListScreen(),
           },
         );
       },

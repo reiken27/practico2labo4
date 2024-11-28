@@ -4,3 +4,5 @@ export 'package:practico2labo4/screens/custom_list_screen.dart';
 export 'package:practico2labo4/screens/home_screen.dart';
 export 'package:practico2labo4/screens/lista_movimientos_screen.dart';
 export 'package:practico2labo4/screens/visualizacion_movimiento_screen.dart';
+export 'package:practico2labo4/screens/ability_list_screen.dart';
+export 'package:practico2labo4/screens/ability_list_item.dart';
