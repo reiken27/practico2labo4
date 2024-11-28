@@ -42,7 +42,7 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Pokemon Black'),
+        title: const Text('Configuracion'),
         elevation: 10,
         backgroundColor: Colors.black87,
       ),
