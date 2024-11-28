@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
+import 'package:audioplayers/audioplayers.dart'; // Importación para el sonido
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:practico2labo4/screens/screens.dart';
 import 'package:practico2labo4/screens/visualizacion_movimiento_screen.dart';
 
 class ListaMovimientosScreen extends StatefulWidget {
@@ -15,6 +16,7 @@ class ListaMovimientosScreen extends StatefulWidget {
 
 class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
   final TextEditingController searchController = TextEditingController();
+  final AudioPlayer _audioPlayer = AudioPlayer(); // Instancia para el sonido
   List<dynamic> movimientos = [];
   List<dynamic> filteredMovimientos = [];
   bool isLoading = false;
@@ -97,6 +99,25 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
     filterMovimientos('');
   }
 
+  Color generateColorForName(String name) {
+    final Random random = Random(name.hashCode);
+    return Color.fromRGBO(
+      random.nextInt(256),
+      random.nextInt(256),
+      random.nextInt(256),
+      1,
+    );
+  }
+
+  Future<void> _playClickSound() async {
+    try {
+      await _audioPlayer
+          .play(AssetSource('sounds/pokeclick.mp3')); // Reproducción del sonido
+    } catch (e) {
+      print('Error al reproducir el sonido: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -104,92 +125,106 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
         title: const Text('Lista de Movimientos'),
         centerTitle: true,
       ),
-      body: Column(
+      body: Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: searchController,
-              decoration: InputDecoration(
-                hintText: 'Buscar movimientos...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.clear),
-                  onPressed: clearSearch,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
+          // Fondo de imagen
+          Positioned.fill(
+            child: Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('assets/images/pokefondo.jpg'),
+                  fit: BoxFit.cover,
                 ),
               ),
-              onChanged: filterMovimientos,
             ),
           ),
-          Expanded(
-            child: isLoading && movimientos.isEmpty
-                ? const Center(child: CircularProgressIndicator())
-                : ListView.builder(
-                    itemCount: filteredMovimientos.length,
-                    itemBuilder: (context, index) {
-                      final movimiento = filteredMovimientos[index];
+          // Contenido principal
+          Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Buscar movimientos...',
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: clearSearch,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                  ),
+                  onChanged: filterMovimientos,
+                ),
+              ),
+              Expanded(
+                child: isLoading && movimientos.isEmpty
+                    ? const Center(child: CircularProgressIndicator())
+                    : ListView.builder(
+                        itemCount: filteredMovimientos.length,
+                        itemBuilder: (context, index) {
+                          final movimiento = filteredMovimientos[index];
+                          final color =
+                              generateColorForName(movimiento['name']);
 
-                      int pokemonId = index + 1;
-                      String imageUrl = generatePokemonImageUrl(pokemonId);
-
-                      return Container(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 15, vertical: 10),
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.yellow.shade100,
-                          borderRadius: BorderRadius.circular(15),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
-                              blurRadius: 8,
-                              spreadRadius: 2,
-                              offset: const Offset(4, 4),
+                          return AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                            margin: const EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 10),
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: color.withOpacity(0.8),
+                              borderRadius: BorderRadius.circular(15),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.2),
+                                  blurRadius: 8,
+                                  spreadRadius: 2,
+                                  offset: const Offset(4, 4),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                        child: ListTile(
-                          leading: Image.network(
-                            imageUrl,
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
-                          ),
-                          title: Text(
-                            movimiento['name'].toUpperCase(),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
-                            ),
-                          ),
-                          trailing: const Icon(Icons.arrow_forward_ios,
-                              color: Colors.black54),
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    VisualizacionMovimientoScreen(
-                                  url: movimiento['url'],
+                            child: ListTile(
+                              leading: Image.asset(
+                                'assets/images/pokebola.gif',
+                                height: 60,
+                                width: 60,
+                              ),
+                              title: Text(
+                                movimiento['name'].toUpperCase(),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
                                 ),
                               ),
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  ),
+                              trailing: const Icon(Icons.arrow_forward_ios,
+                                  color: Colors.black54),
+                              onTap: () async {
+                                await _playClickSound(); // Reproducción del sonido
+                                Navigator.push(
+                                  // ignore: use_build_context_synchronously
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        VisualizacionMovimientoScreen(
+                                      url: movimiento['url'],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      ),
+              ),
+            ],
           ),
         ],
       ),
     );
-  }
-
-  String generatePokemonImageUrl(int id) {
-    return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$id.png';
   }
 }
