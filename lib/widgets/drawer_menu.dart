@@ -21,8 +21,6 @@ class DrawerMenu extends StatelessWidget {
     {
       'route': 'profile',
       'title': 'Configuracion',
-      'subtitle': 'Configuraciones'
-      'title': 'Configuración',
       'subtitle': 'Configuraciones',
       'icon': 'assets/images/pokeball_icon.png',
     },
@@ -53,7 +51,7 @@ class DrawerMenu extends StatelessWidget {
     {
       'route': 'ability_list',
       'title': 'Lista de Habilidades',
-      'subtitle': 'Ver lista de habilidades'
+      'subtitle': 'Ver lista de habilidades',
       'icon': 'assets/images/pokeball_icon.png',
     },
   ];
