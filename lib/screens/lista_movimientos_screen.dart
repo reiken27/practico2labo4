@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:audioplayers/audioplayers.dart'; // Importación para el sonido
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:practico2labo4/screens/visualizacion_movimiento_screen.dart';
@@ -15,6 +16,7 @@ class ListaMovimientosScreen extends StatefulWidget {
 
 class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
   final TextEditingController searchController = TextEditingController();
+  final AudioPlayer _audioPlayer = AudioPlayer(); // Instancia para el sonido
   List<dynamic> movimientos = [];
   List<dynamic> filteredMovimientos = [];
   bool isLoading = false;
@@ -107,6 +109,15 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
     );
   }
 
+  Future<void> _playClickSound() async {
+    try {
+      await _audioPlayer
+          .play(AssetSource('sounds/pokeclick.mp3')); // Reproducción del sonido
+    } catch (e) {
+      print('Error al reproducir el sonido: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -192,7 +203,8 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
                               ),
                               trailing: const Icon(Icons.arrow_forward_ios,
                                   color: Colors.black54),
-                              onTap: () {
+                              onTap: () async {
+                                await _playClickSound(); // Reproducción del sonido
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
