@@ -124,6 +124,8 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
       appBar: AppBar(
         title: const Text('Lista de Movimientos'),
         centerTitle: true,
+        backgroundColor: const Color.fromARGB(255, 121, 199, 248),
+        foregroundColor: Colors.white,
       ),
       body: Stack(
         children: [

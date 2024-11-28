@@ -50,6 +50,8 @@ class _VisualizacionMovimientoScreenState
       appBar: AppBar(
         title: const Text('Detalles del Movimiento'),
         centerTitle: true,
+        backgroundColor: const Color.fromARGB(255, 121, 199, 248),
+        foregroundColor: Colors.white,
       ),
       body: movimiento == null
           ? const Center(child: CircularProgressIndicator())
@@ -178,7 +180,9 @@ class _VisualizacionMovimientoScreenState
                             ),
                           ),
                           style: TextStyle(
-                            color: isDarkMode ? Colors.white : Colors.black87,
+                            color: isDarkMode
+                                ? const Color.fromARGB(255, 148, 3, 3)
+                                : Colors.black87,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -248,8 +252,8 @@ class DetailRow extends StatelessWidget {
               style: TextStyle(
                 fontSize: 20,
                 color: isDarkMode
-                    ? const Color.fromARGB(249, 255, 255, 255)
-                    : Colors.black87,
+                    ? const Color.fromARGB(248, 224, 6, 6)
+                    : const Color.fromARGB(221, 3, 24, 139),
               ),
             ),
           ),
