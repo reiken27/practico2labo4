@@ -38,7 +38,7 @@ class _VisualizacionMovimientoScreenState
 
   @override
   Widget build(BuildContext context) {
-    // Obtenemos colores adaptados al tema
+ 
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
 
@@ -219,7 +219,7 @@ class _VisualizacionMovimientoScreenState
   }
 }
 
-// Widget para fila de detalle
+
 class DetailRow extends StatelessWidget {
   final String label;
   final String value;
