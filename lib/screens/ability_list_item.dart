@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:practico2labo4/screens/visualizacion_pokemon_screen.dart';
 
 class AbilityListItem extends StatefulWidget {
   final String url;
@@ -89,8 +90,7 @@ class _AbilityListItemState extends State<AbilityListItem> {
                                 child: Text(
                                   '${ability?['flavor_text_entries'][1]['flavor_text'] ?? 'No description available'}',
                                   style: const TextStyle(
-                                    fontSize: 16,
-                                  ),
+                                      fontSize: 16, color: Colors.black87),
                                 ),
                               ),
                             ],
@@ -152,6 +152,7 @@ class _AbilityListItemState extends State<AbilityListItem> {
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
+                                color: Colors.black87,
                               ),
                             ),
                             trailing: const Icon(Icons.chevron_right),
@@ -159,8 +160,10 @@ class _AbilityListItemState extends State<AbilityListItem> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => PokemonDetailScreen(
-                                      pokemonName, imageUrl),
+                                  builder: (context) =>
+                                      VisualizacionPokemonScreen(
+                                    url: pokemonData['pokemon']['url'],
+                                  ),
                                 ),
                               );
                             },
