@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:practico2labo4/screens/screens.dart';
@@ -21,6 +22,7 @@ class _ListaPokemonScreenState extends State<ListaPokemonScreen> {
   String? nextUrl;
   bool isDisposed = false;
   Map<String, Color> typeColors = {};
+  final Map<String, List<String>> _pokemonTypesCache = {};
 
   @override
   void initState() {
@@ -111,6 +113,10 @@ class _ListaPokemonScreenState extends State<ListaPokemonScreen> {
   }
 
   Future<List<String>> fetchPokemonTypes(String url) async {
+    if (_pokemonTypesCache.containsKey(url)) {
+      return _pokemonTypesCache[url]!;
+    }
+
     try {
       final response =
           await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
@@ -118,7 +124,12 @@ class _ListaPokemonScreenState extends State<ListaPokemonScreen> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final types = data['types'] as List<dynamic>;
-        return types.map((type) => type['type']['name'] as String).toList();
+        final typesList =
+            types.map((type) => type['type']['name'] as String).toList();
+
+        _pokemonTypesCache[url] = typesList;
+
+        return typesList;
       }
     } catch (e) {
       log(e.toString());
@@ -223,17 +234,18 @@ class _ListaPokemonScreenState extends State<ListaPokemonScreen> {
                                 color: color,
                               ),
                               child: ListTile(
-                                leading: Image.network(
-                                  imageUrl,
+                                leading: CachedNetworkImage(
+                                  imageUrl: imageUrl,
                                   width: 60,
                                   height: 60,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Image.asset(
-                                      'assets/images/pokeball.png',
-                                      fit: BoxFit.cover,
-                                    );
-                                  },
+                                  placeholder: (context, url) =>
+                                      const CircularProgressIndicator(),
+                                  errorWidget: (context, url, error) =>
+                                      Image.asset(
+                                    'assets/images/pokeball.png',
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                                 title: Text(
                                   pokemon['name'].toUpperCase(),
