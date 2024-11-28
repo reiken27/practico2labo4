@@ -206,6 +206,7 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
                               onTap: () async {
                                 await _playClickSound(); // Reproducción del sonido
                                 Navigator.push(
+                                  // ignore: use_build_context_synchronously
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
