@@ -19,6 +19,7 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
   final AudioPlayer _audioPlayer = AudioPlayer(); // Instancia para el sonido
   List<dynamic> movimientos = [];
   List<dynamic> filteredMovimientos = [];
+  Map<String, String> movimientoImages = {}; // Map para almacenar imágenes
   bool isLoading = false;
   String? nextUrl;
   bool isDisposed = false;
@@ -55,6 +56,11 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
             nextUrl = data['next'];
             isLoading = false;
           });
+
+          // Cargar imágenes de Pokémon
+          for (var movimiento in data['results']) {
+            fetchPokemonImage(movimiento['name']);
+          }
         }
 
         if (nextUrl != null && !isDisposed) {
@@ -82,6 +88,28 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
         });
         throw Exception('Error de conexión. Verifica tu red o la API.');
       }
+    }
+  }
+
+  Future<void> fetchPokemonImage(String moveName) async {
+    final randomId = Random().nextInt(898) + 1;
+    final url = 'https://pokeapi.co/api/v2/pokemon/$randomId/';
+
+    try {
+      final response = await http.get(Uri.parse(url));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final imageUrl = data['sprites']['front_default'];
+
+        if (!isDisposed && imageUrl != null) {
+          setState(() {
+            movimientoImages[moveName] = imageUrl;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error al cargar la imagen del Pokémon: $e');
     }
   }
 
@@ -170,6 +198,7 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
                           final movimiento = filteredMovimientos[index];
                           final color =
                               generateColorForName(movimiento['name']);
+                          final imageUrl = movimientoImages[movimiento['name']];
 
                           return AnimatedContainer(
                             duration: const Duration(milliseconds: 300),
@@ -190,11 +219,14 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
                               ],
                             ),
                             child: ListTile(
-                              leading: Image.asset(
-                                'assets/images/pokebola.gif',
-                                height: 60,
-                                width: 60,
-                              ),
+                              leading: imageUrl != null
+                                  ? Image.network(
+                                      imageUrl,
+                                      height: 60,
+                                      width: 60,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : const SizedBox.shrink(),
                               title: Text(
                                 movimiento['name'].toUpperCase(),
                                 style: const TextStyle(
