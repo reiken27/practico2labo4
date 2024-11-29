@@ -16,6 +16,7 @@ class _VisualizacionMovimientoScreenState
     extends State<VisualizacionMovimientoScreen> {
   Map<String, dynamic>? movimiento;
   bool isFavorite = false;
+  String? pokemonImageUrl; // Para almacenar la URL de la imagen del Pokémon
 
   final _controller = TextEditingController();
 
@@ -25,20 +26,40 @@ class _VisualizacionMovimientoScreenState
     fetchMovimiento();
   }
 
+  // Función para obtener el movimiento y la imagen del Pokémon
   Future<void> fetchMovimiento() async {
     final response = await http.get(Uri.parse(widget.url));
     if (response.statusCode == 200) {
       setState(() {
         movimiento = json.decode(response.body);
       });
+
+      // Obtener imagen del Pokémon aleatorio usando randomId
+      final randomId =
+          (DateTime.now().millisecondsSinceEpoch % 898) + 1; // Generar randomId
+      await fetchPokemonImage(randomId); // Obtener la imagen del Pokémon
     } else {
       throw Exception('Error al cargar el movimiento');
     }
   }
 
+  // Función para obtener la imagen del Pokémon
+  Future<void> fetchPokemonImage(int randomId) async {
+    final url = 'https://pokeapi.co/api/v2/pokemon/$randomId/';
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      setState(() {
+        pokemonImageUrl =
+            data['sprites']['front_default']; // Obtener la URL de la imagen
+      });
+    } else {
+      throw Exception('Error al cargar la imagen del Pokémon');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Obtenemos colores adaptados al tema
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
 
@@ -50,16 +71,20 @@ class _VisualizacionMovimientoScreenState
       appBar: AppBar(
         title: const Text('Detalles del Movimiento'),
         centerTitle: true,
+        backgroundColor: const Color.fromARGB(255, 121, 199, 248),
+        foregroundColor: Colors.white,
       ),
       body: movimiento == null
           ? const Center(child: CircularProgressIndicator())
           : Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.blueAccent, Colors.lightBlue],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
+              decoration: BoxDecoration(
+                image: pokemonImageUrl != null
+                    ? DecorationImage(
+                        image: NetworkImage(
+                            pokemonImageUrl!), // Usar la URL obtenida
+                        fit: BoxFit.cover,
+                      )
+                    : null,
               ),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -102,11 +127,17 @@ class _VisualizacionMovimientoScreenState
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(12),
-                            image: const DecorationImage(
-                              image: AssetImage(
-                                  'assets/images/pokemondetalle.jpg'),
-                              fit: BoxFit.cover,
-                            ),
+                            image: pokemonImageUrl != null
+                                ? DecorationImage(
+                                    image: NetworkImage(
+                                        pokemonImageUrl!), // Usar la URL obtenida
+                                    fit: BoxFit.cover,
+                                  )
+                                : const DecorationImage(
+                                    image: AssetImage(
+                                        'assets/images/pokemondetalle.jpg'),
+                                    fit: BoxFit.cover,
+                                  ),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -178,7 +209,9 @@ class _VisualizacionMovimientoScreenState
                             ),
                           ),
                           style: TextStyle(
-                            color: isDarkMode ? Colors.white : Colors.black87,
+                            color: isDarkMode
+                                ? const Color.fromARGB(255, 148, 3, 3)
+                                : Colors.black87,
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -213,9 +246,8 @@ class _VisualizacionMovimientoScreenState
             ),
     );
   }
-}
 
-// Widget para fila de detalle
+}
 class DetailRow extends StatelessWidget {
   final String label;
   final String value;
@@ -248,8 +280,8 @@ class DetailRow extends StatelessWidget {
               style: TextStyle(
                 fontSize: 20,
                 color: isDarkMode
-                    ? const Color.fromARGB(249, 255, 255, 255)
-                    : Colors.black87,
+                    ? const Color.fromARGB(248, 224, 6, 6)
+                    : const Color.fromARGB(221, 3, 24, 139),
               ),
             ),
           ),

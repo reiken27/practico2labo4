@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -40,7 +39,16 @@ class _VisualizacionItemScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Detalles del item'),
+        title: const Text(
+          'Detalles del Item',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.white, // Cambiar el color del texto
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.blueAccent,
       ),
       body: item == null
           ? const Center(child: CircularProgressIndicator())
@@ -50,7 +58,14 @@ class _VisualizacionItemScreenState
                 child: Container(
                   padding: const EdgeInsets.all(16.0),
                   decoration: BoxDecoration(
-                    color: Colors.yellow.shade100,
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.orange.withOpacity(0.9),
+                        Colors.yellow.withOpacity(0.9), 
+                      ],
+                       begin: Alignment.centerLeft,  
+                       end: Alignment.centerRight, 
+                    ),
                     borderRadius: BorderRadius.circular(15),
                     boxShadow: [
                       BoxShadow(
@@ -64,7 +79,7 @@ class _VisualizacionItemScreenState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Título principal
+                    
                       Center(
                         child: Text(
                           'Nombre del Item:\n${item?['name']?.toUpperCase()}',
@@ -72,7 +87,7 @@ class _VisualizacionItemScreenState
                           style: const TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
-                            color: Colors.black87,
+                            color: Color.fromARGB(255, 20, 62, 176),
                           ),
                         ),
                       ),
@@ -84,77 +99,11 @@ class _VisualizacionItemScreenState
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black54,
+                          color: Color.fromARGB(255, 20, 62, 176),
                         ),
                       ),
                       const SizedBox(height: 8),
 
-                      if (item?['power'] != null)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: Row(
-                            children: [
-                              const Text(
-                                'Poder: ',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                '${item?['power']}',
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      if (item?['accuracy'] != null)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: Row(
-                            children: [
-                              const Text(
-                                'Precisión: ',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                '${item?['accuracy']}',
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      if (item?['pp'] != null)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: Row(
-                            children: [
-                              const Text(
-                                'PP: ',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                '${item?['pp']}',
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
                       if (item?['effect_entries'] != null &&
                           (item?['effect_entries'] as List).isNotEmpty)
                         Padding(
@@ -165,8 +114,10 @@ class _VisualizacionItemScreenState
                               const Text(
                                 'Efecto: ',
                                 style: TextStyle(
+                                  color: Color.fromARGB(255, 71, 119, 250),
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
+                              
                                 ),
                               ),
                               Expanded(
@@ -174,7 +125,7 @@ class _VisualizacionItemScreenState
                                   '${item?['effect_entries'][0]['effect']}',
                                   style: const TextStyle(
                                     fontSize: 18,
-                                    color: Colors.black87,
+                                    color: Color.fromARGB(255, 0, 0, 0),
                                   ),
                                 ),
                               ),
@@ -190,7 +141,7 @@ class _VisualizacionItemScreenState
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black54,
+                          color: Color.fromARGB(255, 20, 62, 176),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -210,8 +161,8 @@ class _VisualizacionItemScreenState
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
-                            'Es favorito:',
-                            style: TextStyle(fontSize: 16),
+                            'ES FAVORITO:',
+                            style: TextStyle(fontSize: 17),
                           ),
                           Switch(
                             value: isFavorite,
@@ -232,7 +183,7 @@ class _VisualizacionItemScreenState
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
-                          color: Colors.black54,
+                          color: Color.fromARGB(255, 21, 50, 124),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -252,6 +203,7 @@ class _VisualizacionItemScreenState
                                 Text(
                                   '${key.toUpperCase()}: ',
                                   style: const TextStyle(
+                                    color: Color.fromARGB(255, 71, 119, 250),
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
                                   ),
@@ -261,7 +213,7 @@ class _VisualizacionItemScreenState
                                     value,
                                     style: const TextStyle(
                                       fontSize: 16,
-                                      color: Colors.black87,
+                                      color: Color.fromARGB(255, 0, 0, 0),
                                     ),
                                   ),
                                 ),

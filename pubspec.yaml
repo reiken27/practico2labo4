@@ -54,21 +54,15 @@ flutter:
     - assets/loading.gif
     - assets/images/
     - assets/avatars/
-   
     - assets/fonts/
     - assets/images/pokemonblack.png
     - assets/images/pokemon-wall.png
     - assets/images/pokeball.png
     - assets/images/pokeball_icon.png
     - assets/sounds/pokeclick.mp3
-
-    
-    - assets/images/pokebola.gif
-
-    
+  
     - assets/images/pokeback.png
     - assets/images/pokefondo.jpg
-    - assets/images/pokemondetalle.jpg
     - .env
 
   # An image asset can refer to one or more resolution-specific "variants", see

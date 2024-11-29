@@ -32,7 +32,7 @@ class _VisualizacionPokemonScreenState
         pokemon = json.decode(response.body);
       });
     } else {
-      throw Exception('Error al cargar el movimiento');
+      throw Exception('Error al cargar el pokemon');
     }
   }
 
