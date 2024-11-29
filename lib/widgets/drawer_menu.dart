@@ -168,9 +168,9 @@ class _DrawerHeaderAlternativeState extends State<_DrawerHeaderAlternative> {
               child: AnimatedContainer(
                 width: _circleSize1,
                 height: _circleSize1,
-                child: Image.asset('assets/images/pokeball.png'),
                 duration: const Duration(seconds: 1),
                 curve: Curves.easeInOut,
+                child: Image.asset('assets/images/pokeball.png'),
               ),
             ),
           ),
@@ -182,9 +182,9 @@ class _DrawerHeaderAlternativeState extends State<_DrawerHeaderAlternative> {
               child: AnimatedContainer(
                 width: _circleSize2,
                 height: _circleSize2,
-                child: Image.asset('assets/images/pokeball.png'),
                 duration: const Duration(seconds: 1),
                 curve: Curves.easeInOut,
+                child: Image.asset('assets/images/pokeball.png'),
               ),
             ),
           ),
@@ -196,9 +196,9 @@ class _DrawerHeaderAlternativeState extends State<_DrawerHeaderAlternative> {
               child: AnimatedContainer(
                 width: _circleSize3,
                 height: _circleSize3,
-                child: Image.asset('assets/images/pokeball.png'),
                 duration: const Duration(seconds: 1),
                 curve: Curves.easeInOut,
+                child: Image.asset('assets/images/pokeball.png'),
               ),
             ),
           ),
@@ -210,9 +210,9 @@ class _DrawerHeaderAlternativeState extends State<_DrawerHeaderAlternative> {
               child: AnimatedContainer(
                 width: _circleSize4,
                 height: _circleSize4,
-                child: Image.asset('assets/images/pokeball.png'),
                 duration: const Duration(seconds: 1),
                 curve: Curves.easeInOut,
+                child: Image.asset('assets/images/pokeball.png'),
               ),
             ),
           ),

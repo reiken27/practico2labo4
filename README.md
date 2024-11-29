@@ -20,3 +20,17 @@ Se deja clase demo para manejar todos los valores que se almacenarán en las Sha
 
 ### widgets
 Se deja drawer menú básico para la funcionalidad del repo. Cambiar diseño según las preferencias del grupo
+
+
+### Pantallas de habilidades
+ - Pantalla de lista de habilidades
+        Muestra la lista completa de habilidades, traida desde la API
+        Se usa shared preferences para guardar las habilidades favoritas
+        Se puede buscar habilidades por nombre (En ingles, limitado por la API)
+
+ - Pantalla de detalle de habilidad
+        Muestra la información detallada de la habilidad
+            La descripción y el efecto en combate (En  ingles, limitado por la API)
+        Se puede agregar a favoritos (compartido con la pantalla de lista)
+        Se puede ver la lista de pokemones que la tienen
+            Al clicar en un pokemon, se muestra la pantalla de detalle del pokemon

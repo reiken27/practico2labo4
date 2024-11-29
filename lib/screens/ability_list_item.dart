@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:practico2labo4/screens/visualizacion_pokemon_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+//import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AbilityListItem extends StatefulWidget {
   final String url;
@@ -16,14 +18,20 @@ class _AbilityListItemState extends State<AbilityListItem> {
   Map<String, dynamic>? ability;
   bool isFavorite = false;
   final _controller = TextEditingController();
-  Set<int> selectedPokemonIds = Set(); // Para manejar los Pokémon seleccionados
+  Map<String, bool> favoriteAbilities = {}; // Mapa para favoritos
+  Set<int> selectedPokemonIds = {}; // Para manejar los Pokémon seleccionados
   int? tappedPokemonId; // Para manejar el Pokémon que está siendo presionado
-
   @override
   void initState() {
     super.initState();
     fetchAbility();
+    loadFavorites();
   }
+
+  //final apiImageUrl = dotenv.env['API_IMAGE_URL']; dejada para que se vea el codigo original
+  final apiImageUrl =
+      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/';
+  //Se deja la url directamente para que sea funcional para el resto hasta que solucionen sus codigos
 
   Future<void> fetchAbility() async {
     final response = await http.get(Uri.parse(widget.url));
@@ -33,6 +41,24 @@ class _AbilityListItemState extends State<AbilityListItem> {
       });
     } else {
       throw Exception('Error al cargar la habilidad');
+    }
+  }
+
+  //Se guardan los favoritos en el mapa favoriteAbilities como shared_preferences
+  Future<void> saveFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('favoriteAbilities', json.encode(favoriteAbilities));
+  }
+
+  ///Se cargan los favoritos del mapa favoriteAbilities desde shared_preferences
+  Future<void> loadFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedFavorites = prefs.getString('favoriteAbilities');
+    if (storedFavorites != null) {
+      setState(() {
+        favoriteAbilities =
+            Map<String, bool>.from(json.decode(storedFavorites));
+      });
     }
   }
 
@@ -67,6 +93,7 @@ class _AbilityListItemState extends State<AbilityListItem> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Center(
+                        //Titulo con el nombre de la habilidad
                         child: Text(
                           'Ability Name:\n${ability?['name']?.toUpperCase()}',
                           textAlign: TextAlign.center,
@@ -77,6 +104,7 @@ class _AbilityListItemState extends State<AbilityListItem> {
                           ),
                         ),
                       ),
+                      //La descripcion de la habilidad
                       const SizedBox(height: 24),
                       if (ability?['flavor_text_entries'] != null &&
                           (ability?['flavor_text_entries'] as List).isNotEmpty)
@@ -95,6 +123,8 @@ class _AbilityListItemState extends State<AbilityListItem> {
                               ),
                               Expanded(
                                 child: Text(
+                                  //Se extrae el segundo elemento de la lista que
+                                  //es la descripcion en ingles (para otro idioma cambiar el valor)
                                   '${ability?['flavor_text_entries'][1]['flavor_text'] ?? 'No description available'}',
                                   style: const TextStyle(
                                     fontSize: 16,
@@ -105,6 +135,7 @@ class _AbilityListItemState extends State<AbilityListItem> {
                             ],
                           ),
                         ),
+                      //Efectoo de la habilidad
                       if (ability?['effect_entries'] != null &&
                           (ability?['effect_entries'] as List).isNotEmpty)
                         Padding(
@@ -122,6 +153,8 @@ class _AbilityListItemState extends State<AbilityListItem> {
                               ),
                               Expanded(
                                 child: Text(
+                                  //Se extrae el segundo elemento de la lista que
+                                  //es el efecto en ingles (para otro idioma cambiar el valor)
                                   '${ability?['effect_entries'][1]['effect'] ?? 'No effect available'}',
                                   style: const TextStyle(
                                     fontSize: 18,
@@ -138,15 +171,21 @@ class _AbilityListItemState extends State<AbilityListItem> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           const Text(
+                            //Se agrega el boton de favoritos
                             'Add to favorites:',
                             style: TextStyle(fontSize: 16),
                           ),
                           Switch(
-                            value: isFavorite,
+                            value: favoriteAbilities[ability?['name'] ?? ''] ??
+                                false,
                             onChanged: (value) {
                               setState(() {
-                                isFavorite = value;
+                                favoriteAbilities[ability?['name'] ?? ''] =
+                                    !(favoriteAbilities[
+                                            ability?['name'] ?? ''] ??
+                                        false);
                               });
+                              saveFavorites(); // Guarda los favoritos
                             },
                           ),
                         ],
@@ -160,14 +199,15 @@ class _AbilityListItemState extends State<AbilityListItem> {
                         ),
                       ),
                       const SizedBox(height: 8),
+                      //Lista de pokemon con la habilidad
                       Column(
-                        children:
-                            (ability?['pokemon'] as List).map((pokemonData) {
+                        children: (ability?['pokemon'] as List? ?? [])
+                            .map((pokemonData) {
                           final pokemonName = pokemonData['pokemon']['name'];
                           final pokemonUrl = pokemonData['pokemon']['url'];
                           final pokemonId = extractPokemonId(pokemonUrl);
-                          final imageUrl = generatePokemonImageUrl(pokemonId);
-
+                          final imageUrl = '$apiImageUrl$pokemonId.png';
+                          //Se agrega el boton del pokemon con sus respectivas caracteristicas
                           return InkWell(
                             onTap: () {
                               Navigator.push(
@@ -181,6 +221,8 @@ class _AbilityListItemState extends State<AbilityListItem> {
                               );
                               FocusManager.instance.primaryFocus?.unfocus();
                             },
+                            //Cuando se mantiene precionado
+                            //cambia el color de fondo
                             onTapDown: (_) {
                               setState(() {
                                 tappedPokemonId =
@@ -218,6 +260,8 @@ class _AbilityListItemState extends State<AbilityListItem> {
                                   ),
                                 ],
                               ),
+                              //Aca se muestra la imagen del pokemon y se cachea
+                              //para que se cargue mas rapido
                               child: ListTile(
                                 leading: CachedNetworkImage(
                                   imageUrl: imageUrl,
@@ -228,6 +272,7 @@ class _AbilityListItemState extends State<AbilityListItem> {
                                       const CircularProgressIndicator(),
                                   errorWidget: (context, url, error) =>
                                       Image.asset(
+                                    //En caso de que no cargue la imagen se muestra la pokeball
                                     'assets/images/pokeball.png',
                                     fit: BoxFit.cover,
                                   ),
@@ -247,6 +292,8 @@ class _AbilityListItemState extends State<AbilityListItem> {
                           );
                         }).toList(),
                       ),
+                      //TextFormField para agregar comentarios
+                      //que no tiene funcionalidad de momento mas que estetico
                       const Text(
                         'COMMENTS',
                         style: TextStyle(
@@ -259,7 +306,7 @@ class _AbilityListItemState extends State<AbilityListItem> {
 
                       // Campo de comentarios
                       TextFormField(
-                        style: TextStyle(color: Colors.black),
+                        style: const TextStyle(color: Colors.black),
                         controller: _controller,
                         decoration: const InputDecoration(
                             labelStyle: TextStyle(color: Colors.black),
@@ -269,18 +316,12 @@ class _AbilityListItemState extends State<AbilityListItem> {
                             filled: true),
                       ),
                       const SizedBox(height: 16),
-
-                      // Switch para marcar como favorito
                     ],
                   ),
                 ),
               ),
             ),
     );
-  }
-
-  String generatePokemonImageUrl(int id) {
-    return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$id.png';
   }
 
   int extractPokemonId(String url) {

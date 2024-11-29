@@ -2,9 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:http/http.dart' as http;
 import 'package:practico2labo4/screens/screens.dart';
+//import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AbilityListScreen extends StatefulWidget {
   const AbilityListScreen({super.key});
@@ -17,6 +18,7 @@ class _AbilityListScreenState extends State<AbilityListScreen> {
   final TextEditingController searchController = TextEditingController();
   List<dynamic> abilitys = [];
   List<dynamic> filteredAbility = [];
+  Map<String, bool> favoriteAbilities = {}; // Mapa para favoritos
   bool isLoading = false;
   String? nextUrl;
   bool isDisposed = false;
@@ -25,7 +27,11 @@ class _AbilityListScreenState extends State<AbilityListScreen> {
   @override
   void initState() {
     super.initState();
-    fetchAbility('https://pokeapi.co/api/v2/ability');
+    //final apiUrl = dotenv.env['API_URL']; dejada para que se vea el codigo original
+    //final apiUrl = dotenv.env['API_URL'];
+    const apiUrl = 'https://pokeapi.co/api/v2/';
+    //Se deja la url directamente para que sea funcional para el resto hasta que solucionen sus codigos
+    fetchAbility('$apiUrl/ability');
   }
 
   @override
@@ -98,14 +104,34 @@ class _AbilityListScreenState extends State<AbilityListScreen> {
     filterAbility('');
   }
 
+  //Se guardan los favoritos en el mapa favoriteAbilities como shared_preferences
+  Future<void> saveFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('favoriteAbilities', json.encode(favoriteAbilities));
+  }
+
+  ///Se cargan los favoritos del mapa favoriteAbilities desde shared_preferences
+  Future<void> loadFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedFavorites = prefs.getString('favoriteAbilities');
+    if (storedFavorites != null) {
+      setState(() {
+        favoriteAbilities =
+            Map<String, bool>.from(json.decode(storedFavorites));
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    loadFavorites();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Ability List'),
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 43, 45, 66),
       ),
+      //Barra de busqueda
       body: Column(
         children: [
           Padding(
@@ -133,7 +159,7 @@ class _AbilityListScreenState extends State<AbilityListScreen> {
                     itemCount: filteredAbility.length,
                     itemBuilder: (context, index) {
                       final ability = filteredAbility[index];
-
+                      //Lista de habilidades
                       return InkWell(
                         onTap: () {
                           Navigator.push(
@@ -146,6 +172,8 @@ class _AbilityListScreenState extends State<AbilityListScreen> {
                           );
                           FocusManager.instance.primaryFocus?.unfocus();
                         },
+                        //Cuando se mantiene precionado
+                        //cambia el color de fondo
                         onTapDown: (_) {
                           setState(() {
                             tappedAbilityIndex =
@@ -162,10 +190,8 @@ class _AbilityListScreenState extends State<AbilityListScreen> {
                             tappedAbilityIndex = null; // Resetear si cancela
                           });
                         },
-                        highlightColor: Colors
-                            .transparent, // Eliminar el "highlight" al presionar
-                        splashColor:
-                            Colors.transparent, // Eliminar el efecto "splash"
+                        highlightColor: Colors.transparent,
+                        splashColor: Colors.transparent,
                         child: Container(
                           margin: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 5),
@@ -186,6 +212,7 @@ class _AbilityListScreenState extends State<AbilityListScreen> {
                               ),
                             ],
                           ),
+                          //El nombre de la habilidad
                           child: ListTile(
                             title: Text(
                               ability['name'].toUpperCase(),
@@ -195,8 +222,28 @@ class _AbilityListScreenState extends State<AbilityListScreen> {
                                 color: Color.fromARGB(255, 237, 242, 244),
                               ),
                             ),
-                            trailing: const Icon(Icons.arrow_forward_ios,
-                                color: Color.fromARGB(255, 237, 242, 244)),
+                            //El icono de favoritos
+                            //Al tocarlo cambia de color
+                            //y se guarda la shared_preferences
+                            trailing: IconButton(
+                              icon: Icon(
+                                favoriteAbilities[ability['name']] == true
+                                    ? Icons.star // Estrella llena
+                                    : Icons.star_border, // Estrella vacía
+                                color: favoriteAbilities[ability['name']] ==
+                                        true
+                                    ? Colors.yellow
+                                    : const Color.fromARGB(255, 237, 242, 244),
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  favoriteAbilities[ability['name']] =
+                                      !(favoriteAbilities[ability['name']] ??
+                                          false);
+                                });
+                                saveFavorites(); // Guarda los favoritos
+                              },
+                            ),
                           ),
                         ),
                       );

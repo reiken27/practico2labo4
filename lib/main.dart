@@ -12,12 +12,12 @@ import 'package:practico2labo4/screens/profile_screen.dart';
 import 'package:practico2labo4/screens/lista_items.dart';
 import 'package:practico2labo4/themes/default_theme.dart';
 import 'package:provider/provider.dart'; // Importa Provider
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Preferences.initShared(); // Inicializa SharedPreferences
-
+  await dotenv.load(fileName: ".env");
   runApp(
     ChangeNotifierProvider(
       create: (_) => ThemeProvider(), // Proveedor de tema
@@ -71,4 +71,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
