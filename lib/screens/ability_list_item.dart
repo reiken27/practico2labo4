@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:practico2labo4/screens/visualizacion_pokemon_screen.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class AbilityListItem extends StatefulWidget {
   final String url;
@@ -218,11 +219,18 @@ class _AbilityListItemState extends State<AbilityListItem> {
                                 ],
                               ),
                               child: ListTile(
-                                leading: Image.network(
-                                  imageUrl,
+                                leading: CachedNetworkImage(
+                                  imageUrl: imageUrl,
                                   width: 80,
                                   height: 80,
                                   fit: BoxFit.values[0],
+                                  placeholder: (context, url) =>
+                                      const CircularProgressIndicator(),
+                                  errorWidget: (context, url, error) =>
+                                      Image.asset(
+                                    'assets/images/pokeball.png',
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                                 title: Text(
                                   pokemonName.toUpperCase(),
