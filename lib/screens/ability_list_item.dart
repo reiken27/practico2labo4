@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:practico2labo4/screens/visualizacion_pokemon_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-//import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AbilityListItem extends StatefulWidget {
@@ -28,10 +28,7 @@ class _AbilityListItemState extends State<AbilityListItem> {
     loadFavorites();
   }
 
-  //final apiImageUrl = dotenv.env['API_IMAGE_URL']; dejada para que se vea el codigo original
-  final apiImageUrl =
-      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/';
-  //Se deja la url directamente para que sea funcional para el resto hasta que solucionen sus codigos
+  final apiImageUrl = dotenv.env['API_IMAGE_URL'];
 
   Future<void> fetchAbility() async {
     final response = await http.get(Uri.parse(widget.url));
