@@ -163,15 +163,13 @@ class _ListaPokemonScreenState extends State<ListaPokemonScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lista de Pokémon'),
-        //title color
         titleTextStyle: const TextStyle(
-          //color
           color: Colors.white,
           fontWeight: FontWeight.bold,
           fontSize: 24,
         ),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 255, 0, 0),
+        backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
       ),
       body: Column(
