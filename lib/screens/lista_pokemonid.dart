@@ -111,7 +111,7 @@ class _ListaPokemonidScreenState extends State<ListaPokemonidScreen> {
     }
   }
 
-  // Método que obtiene los tipos del Pokémon desde la API
+  
   Future<List<String>> fetchPokemonTypes(String url) async {
     if (_pokemonTypesCache.containsKey(url)) {
       return _pokemonTypesCache[url]!;
@@ -193,14 +193,14 @@ class _ListaPokemonidScreenState extends State<ListaPokemonidScreen> {
                 ? const Center(child: CircularProgressIndicator())
                 : Stack(
                     children: [
-                      // Fondo de la imagen
+                      
                       Positioned.fill(
                         child: Image.asset(
                           'assets/images/pokeback.png',
                           fit: BoxFit.cover,
                         ),
                       ),
-                      // GridView con los Pokémon
+                      
                       GridView.builder(
                         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
