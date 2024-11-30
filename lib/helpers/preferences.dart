@@ -14,6 +14,6 @@ class Preferences {
 
   static set darkmode(bool value) {
     _darkmode = value;
-    _prefs.setBool('darkmode', value);
+    _prefs.setBool('darkmode', value); // Guarda el estado en SharedPreferences
   }
 }
