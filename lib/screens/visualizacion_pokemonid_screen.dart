@@ -19,7 +19,7 @@ class _VisualizacionPokemonidScreenState
   bool isFavorite = false;
   final TextEditingController _controller = TextEditingController();
 Future<void> _loadPokemonData() async {
-  if (pokemon?['id'] == null) return; // Asegura que el Pokémon tenga un ID válido
+  if (pokemon?['id'] == null) return; 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   setState(() {
 
@@ -31,13 +31,13 @@ Future<void> _loadPokemonData() async {
 
 
 Future<void> _saveFavoriteStatus() async {
-  if (pokemon?['id'] == null) return; // Asegura que pokemon tenga un ID válido
+  if (pokemon?['id'] == null) return; 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.setBool('isFavorite_${pokemon?['id']}', isFavorite);
 }
 
 Future<void> _saveComment(String comment) async {
-  if (pokemon?['id'] == null) return; // Asegura que el Pokémon tenga un ID válido
+  if (pokemon?['id'] == null) return; 
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.setString('comment_${pokemon?['id']}', comment);
 }
@@ -48,7 +48,7 @@ Future<void> _saveComment(String comment) async {
 void initState() {
   super.initState();
   fetchPokemon();
-  _loadPokemonData(); // Carga el estado guardado
+  _loadPokemonData(); 
 }
 
 
@@ -58,7 +58,7 @@ Future<void> fetchPokemon() async {
     setState(() {
       pokemon = json.decode(response.body);
     });
-    _loadPokemonData(); // Carga el estado de favorito y el comentario
+    _loadPokemonData(); 
   } else {
     throw Exception('Error al cargar el Pokémon');
   }
@@ -74,7 +74,7 @@ Future<void> fetchPokemon() async {
     if (evolutionResponse.statusCode == 200) {
       final evolutionData = json.decode(evolutionResponse.body);
 
-      // Recorre la cadena de evoluciones
+     
       List<Map<String, String>> evolutions = [];
       var current = evolutionData['chain'];
       while (current != null) {
@@ -160,7 +160,7 @@ Future<void> fetchPokemon() async {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Imagen, ID y nombre del Pokémon
+                    
                     Stack(
                       children: [
                         Center(
@@ -199,9 +199,9 @@ Future<void> fetchPokemon() async {
                         ),
                       ],
                     ),
+
                     const SizedBox(height: 20),
 
-                    // Datos principales
                     Container(
                       padding: const EdgeInsets.all(16.0),
                       decoration: BoxDecoration(
@@ -225,9 +225,9 @@ Future<void> fetchPokemon() async {
                         ],
                       ),
                     ),
+
                     const SizedBox(height: 20),
 
-                    // Estadísticas
                     const Text(
                       'Estadísticas',
                       style: TextStyle(
@@ -241,10 +241,13 @@ Future<void> fetchPokemon() async {
                     buildStatBar('DEF', pokemon?['stats'][2]['base_stat']),
                     buildStatBar('SPD', pokemon?['stats'][5]['base_stat']),
                     buildStatBar('EXP', pokemon?['base_experience'], maxStat: 1000),
+
                     const SizedBox(height: 20),
+
                     buildEvolutionChain(),
+
                     const SizedBox(height: 20),
-                    // Comentarios y boton guardar
+                
                     const Text(
                       'Comentarios',
                       style: TextStyle(
@@ -255,11 +258,10 @@ Future<void> fetchPokemon() async {
                     ),
                     const SizedBox(height: 8),
 
-                    // comentario
                     TextFormField(
                     controller: _controller,
                     onChanged: (value) {
-                    _saveComment(value); // Guarda automáticamente el comentario
+                    _saveComment(value); 
                   },
                     decoration: const InputDecoration(
                       hintText: 'Ingresa un comentario',
@@ -281,7 +283,6 @@ Future<void> fetchPokemon() async {
 
                     const SizedBox(height: 16),
 
-                    // Switch para marcar como "Guardado en Pokédex"
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -297,14 +298,11 @@ Future<void> fetchPokemon() async {
                           setState(() {
                             isFavorite = value;
                           });
-                          _saveFavoriteStatus(); // Guarda el estado actualizado
+                          _saveFavoriteStatus(); 
                         },
                       ),
-
                       ],
                     ),
-
-                    
                   ],
                 ),
               ),
@@ -362,7 +360,6 @@ Future<void> fetchPokemon() async {
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         children: [
-          // Etiqueta
           Text(
             label,
             style: const TextStyle(
@@ -371,7 +368,6 @@ Future<void> fetchPokemon() async {
             ),
           ),
           const SizedBox(width: 10),
-          // Barra
           Expanded(
             child: Stack(
               children: [
@@ -424,8 +420,8 @@ Widget buildEvolutionChain() {
       final evolutions = snapshot.data!;
       
       return Container(
-        margin: const EdgeInsets.all(3.0), // Espaciado externo
-        padding: const EdgeInsets.all(16.0), // Espaciado interno
+        margin: const EdgeInsets.all(3.0), 
+        padding: const EdgeInsets.all(16.0), 
         decoration: BoxDecoration(
           color: Colors.white, 
           borderRadius: BorderRadius.circular(12.0), 
