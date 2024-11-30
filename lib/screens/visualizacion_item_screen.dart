@@ -29,7 +29,7 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          item = data; // Cargamos los datos en el estado
+          item = data; 
         });
       } else {
         throw Exception('Error al cargar el item: ${response.statusCode}');
@@ -37,25 +37,20 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
     } catch (e) {
       print('Error al cargar el item: $e');
       setState(() {
-        item = null; // Aseguramos un estado consistente
+        item = null; 
       });
     }
   }
 
-  // Función para manejar el envío de comentarios
   void enviarComentario() {
     final comentario = _controller.text;
     if (comentario.isNotEmpty) {
-      // Aquí puedes hacer lo que quieras con el comentario, como guardarlo o enviarlo a una API
       print('Comentario enviado: $comentario');
-      // Muestra un mensaje de éxito
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Comentario enviado con éxito')),
       );
-      // Limpiar el campo de texto
       _controller.clear();
     } else {
-      // Si el campo está vacío, muestra un mensaje de advertencia
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Por favor, ingrese un comentario')),
       );
@@ -108,7 +103,6 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Imagen del ítem
                       if (item?['sprites']?['default'] != null)
                         Center(
                           child: Image.network(
@@ -120,7 +114,6 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
                         ),
                       const SizedBox(height: 24),
 
-                      // Nombre del ítem
                       Center(
                         child: Text(
                           '${item?['name']?.toUpperCase() ?? 'Desconocido'}',
@@ -134,7 +127,6 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Categoría del ítem
                       if (item?['category']?['name'] != null)
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -163,7 +155,6 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
                         ),
                       const SizedBox(height: 24),
 
-                      // Detalles destacados
                       const Text(
                         'DETALLES DESTACADOS',
                         style: TextStyle(
@@ -174,7 +165,6 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
                       ),
                       const SizedBox(height: 8),
 
-                      // Efecto
                       if (item?['effect_entries'] != null &&
                           (item?['effect_entries'] as List).isNotEmpty)
                         Padding(
@@ -204,7 +194,6 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
                         ),
                       const SizedBox(height: 16),
 
-                      // Generaciones y el índice de los juegos donde aparece el ítem
                       const Text(
                         'GENERACIONES DE JUEGO EN LAS QUE APARECE EL ÍTEM',
                         style: TextStyle(
@@ -234,18 +223,17 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
                               else
                                 const Text(
                                   'Datos incompletos para uno de los juegos.',
-                                  style: TextStyle(fontSize: 16, color: Colors.red),
+                                  style: TextStyle(fontSize: 16, color: Color.fromARGB(255, 0, 0, 0)),
                                 ),
                           ],
                         )
                       else
                         const Text(
                           'No hay información de generaciones para este ítem.',
-                          style: TextStyle(fontSize: 18, color: Colors.red),
+                          style: TextStyle(fontSize: 18, color: Color.fromARGB(255, 0, 0, 0)),
                         ),
 
 
-                      // Comentarios y favoritos
                       const Text(
                         'COMENTARIOS Y FAVORITOS',
                         style: TextStyle(
@@ -256,7 +244,6 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
                       ),
                       const SizedBox(height: 8),
 
-                      // Campo de comentarios
                       TextFormField(
                         controller: _controller,
                         decoration: const InputDecoration(
@@ -266,7 +253,6 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Botón para enviar el comentario
                       ElevatedButton(
                         onPressed: enviarComentario,
                         style: ElevatedButton.styleFrom(
@@ -277,7 +263,6 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Switch para marcar como favorito
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
