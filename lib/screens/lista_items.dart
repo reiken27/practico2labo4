@@ -24,7 +24,7 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
   @override
   void initState() {
     super.initState();
-    fetchItems('https://pokeapi.co/api/v2/item');  // Cambiar a 'item' en lugar de 'move'
+    fetchItems('https://pokeapi.co/api/v2/item');  
   }
 
   @override
@@ -47,10 +47,9 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
         final data = json.decode(response.body);
 
         if (!isDisposed) {
-          // Aquí agregamos la URL de la imagen a cada item
           for (var item in data['results']) {
             final imageUrl = await fetchItemImage(item['url']);
-            item['imageUrl'] = imageUrl;  // Almacenamos la URL de la imagen en el item
+            item['imageUrl'] = imageUrl; 
           }
 
           setState(() {
@@ -93,7 +92,6 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      // Aquí obtenemos la URL de la imagen
       return data['sprites']['default'] ?? '';
     } else {
       throw Exception('Error al cargar la imagen del item');
@@ -123,7 +121,7 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Colors.white, // Cambiar el color del texto
+            color: Colors.white, 
           ),
         ),
         centerTitle: true,
@@ -156,7 +154,7 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
                     itemCount: filteredItems.length,
                     itemBuilder: (context, index) {
                       final item = filteredItems[index];
-                      String imageUrl = item['imageUrl'] ?? '';  // Usamos la URL almacenada
+                      String imageUrl = item['imageUrl'] ?? '';  
 
                       return Container(
                         margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
