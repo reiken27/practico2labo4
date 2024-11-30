@@ -320,12 +320,15 @@ Future<void> fetchPokemon() async {
             style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 18,
+              color: Colors.black,
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(fontSize: 18),
+              style: const TextStyle(
+                fontSize: 18,
+                color: Colors.black,),
             ),
           ),
         ],
@@ -442,6 +445,7 @@ Widget buildEvolutionChain() {
               style: TextStyle(
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
+                color: Colors.black,
               ),
             ),
             const SizedBox(height: 10),
@@ -468,12 +472,14 @@ Widget buildEvolutionChain() {
                               current['name']!.toUpperCase(),
                               style: const TextStyle(
                               fontSize: 14,
-                              fontWeight: FontWeight.bold,),
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,),
+                              
                             ),
                           ],
                         ),
                         const SizedBox(width: 10),
-                        const Icon(Icons.arrow_forward, size: 24),
+                        const Icon(Icons.arrow_forward, size: 24, color: Colors.black,),
                         const SizedBox(width: 10),
                         Column(
                           children: [
@@ -488,7 +494,8 @@ Widget buildEvolutionChain() {
                               next['name']!.toUpperCase(),
                               style: const TextStyle(
                                 fontSize: 14, 
-                                fontWeight: FontWeight.bold,),
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black),
                             ),
                           ],
                         ),
