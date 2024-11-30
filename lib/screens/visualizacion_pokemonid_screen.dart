@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class VisualizacionPokemonidScreen extends StatefulWidget {
   final String url;
@@ -17,25 +18,51 @@ class _VisualizacionPokemonidScreenState
   Map<String, dynamic>? pokemon;
   bool isFavorite = false;
   final TextEditingController _controller = TextEditingController();
-  
+Future<void> _loadPokemonData() async {
+  if (pokemon?['id'] == null) return; // Asegura que el Pokémon tenga un ID válido
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  setState(() {
+
+    isFavorite = prefs.getBool('isFavorite_${pokemon?['id']}') ?? false;
+
+    _controller.text = prefs.getString('comment_${pokemon?['id']}') ?? '';
+  });
+}
 
 
-  @override
-  void initState() {
-    super.initState();
-    fetchPokemon();
+Future<void> _saveFavoriteStatus() async {
+  if (pokemon?['id'] == null) return; // Asegura que pokemon tenga un ID válido
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  prefs.setBool('isFavorite_${pokemon?['id']}', isFavorite);
+}
+
+Future<void> _saveComment(String comment) async {
+  if (pokemon?['id'] == null) return; // Asegura que el Pokémon tenga un ID válido
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  await prefs.setString('comment_${pokemon?['id']}', comment);
+}
+
+
+
+ @override
+void initState() {
+  super.initState();
+  fetchPokemon();
+  _loadPokemonData(); // Carga el estado guardado
+}
+
+
+Future<void> fetchPokemon() async {
+  final response = await http.get(Uri.parse(widget.url));
+  if (response.statusCode == 200) {
+    setState(() {
+      pokemon = json.decode(response.body);
+    });
+    _loadPokemonData(); // Carga el estado de favorito y el comentario
+  } else {
+    throw Exception('Error al cargar el Pokémon');
   }
-
-  Future<void> fetchPokemon() async {
-    final response = await http.get(Uri.parse(widget.url));
-    if (response.statusCode == 200) {
-      setState(() {
-        pokemon = json.decode(response.body);
-      });
-    } else {
-      throw Exception('Error al cargar el Pokémon');
-    }
-  }
+}
 
   Future<List<Map<String, String>>> fetchEvolutionChain() async {
   final speciesResponse =
@@ -74,11 +101,11 @@ class _VisualizacionPokemonidScreenState
       case 'normal':
         return const Color.fromARGB(255, 168, 167, 122);
       case 'fighting':
-        return const Color.fromARGB(255, 194, 104, 101);
+        return const Color.fromARGB(255, 222, 110, 110);
       case 'flying':
         return const Color.fromARGB(255, 169, 143, 243);
       case 'poison':
-        return const Color.fromARGB(255, 163, 62, 161);
+        return const Color.fromARGB(255, 214, 96, 212);
       case 'ground':
         return const Color.fromARGB(255, 226, 191, 101);
       case 'rock':
@@ -90,13 +117,13 @@ class _VisualizacionPokemonidScreenState
       case 'steel':
         return const Color.fromARGB(255, 183, 183, 206);
       case 'fire':
-        return const Color.fromARGB(255, 238, 129, 48);
+        return const Color.fromARGB(255, 233, 157, 95);
       case 'water':
         return const Color.fromARGB(255, 99, 144, 240);
       case 'grass':
         return const Color.fromARGB(255, 122, 199, 76);
       case 'electric':
-        return const Color.fromARGB(255, 247, 208, 44);
+        return const Color.fromARGB(255, 189, 173, 69);
       case 'psychic':
         return const Color.fromARGB(255, 249, 85, 135);
       case 'ice':
@@ -121,6 +148,8 @@ class _VisualizacionPokemonidScreenState
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detalles del Pokémon'),
+        backgroundColor: const Color.fromARGB(255, 121, 199, 248), 
+        foregroundColor: Colors.white, 
       ),
       body: pokemon == null
           ? const Center(child: CircularProgressIndicator())
@@ -229,19 +258,22 @@ class _VisualizacionPokemonidScreenState
                     // comentario
                     TextFormField(
                     controller: _controller,
+                    onChanged: (value) {
+                    _saveComment(value); // Guarda automáticamente el comentario
+                  },
                     decoration: const InputDecoration(
-                      labelText: 'Ingresa un comentario',
+                      hintText: 'Ingresa un comentario',
                       border:  OutlineInputBorder(),
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(
-                          color: Color.fromARGB(255, 0, 0, 0), // Cambia este color al que desees
-                          width: 2.0, // Puedes cambiar el grosor si lo deseas
+                          color: Color.fromARGB(255, 0, 0, 0), 
+                          width: 2.0, 
                         ),
                       ),
                       enabledBorder:  OutlineInputBorder(
                         borderSide: BorderSide(
-                          color: Color.fromARGB(255, 255, 255, 255), // Cambia este color al que desees
-                          width: 1.0, // Puedes cambiar el grosor si lo deseas
+                          color: Color.fromARGB(255, 255, 255, 255), 
+                          width: 1.0, 
                         ),
                       ),
                     ),
@@ -260,13 +292,15 @@ class _VisualizacionPokemonidScreenState
                           fontWeight: FontWeight.bold,),
                         ),
                         Switch(
-                          value: isFavorite,
-                          onChanged: (value) {
-                            setState(() {
-                              isFavorite = value;
-                            });
-                          },
-                        ),
+                        value: isFavorite,
+                        onChanged: (value) {
+                          setState(() {
+                            isFavorite = value;
+                          });
+                          _saveFavoriteStatus(); // Guarda el estado actualizado
+                        },
+                      ),
+
                       ],
                     ),
 
