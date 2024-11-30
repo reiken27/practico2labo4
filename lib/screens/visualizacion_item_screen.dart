@@ -11,8 +11,7 @@ class VisualizacionItemScreen extends StatefulWidget {
       _VisualizacionItemScreenState();
 }
 
-class _VisualizacionItemScreenState
-    extends State<VisualizacionItemScreen> {
+class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
   Map<String, dynamic>? item;
   bool isFavorite = false;
 
@@ -25,13 +24,41 @@ class _VisualizacionItemScreenState
   }
 
   Future<void> fetchItem() async {
-    final response = await http.get(Uri.parse(widget.url));
-    if (response.statusCode == 200) {
+    try {
+      final response = await http.get(Uri.parse(widget.url));
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          item = data; // Cargamos los datos en el estado
+        });
+      } else {
+        throw Exception('Error al cargar el item: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error al cargar el item: $e');
       setState(() {
-        item = json.decode(response.body);
+        item = null; // Aseguramos un estado consistente
       });
+    }
+  }
+
+  // Función para manejar el envío de comentarios
+  void enviarComentario() {
+    final comentario = _controller.text;
+    if (comentario.isNotEmpty) {
+      // Aquí puedes hacer lo que quieras con el comentario, como guardarlo o enviarlo a una API
+      print('Comentario enviado: $comentario');
+      // Muestra un mensaje de éxito
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Comentario enviado con éxito')),
+      );
+      // Limpiar el campo de texto
+      _controller.clear();
     } else {
-      throw Exception('Error al cargar el item');
+      // Si el campo está vacío, muestra un mensaje de advertencia
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor, ingrese un comentario')),
+      );
     }
   }
 
@@ -44,14 +71,16 @@ class _VisualizacionItemScreenState
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Colors.white, // Cambiar el color del texto
+            color: Colors.white,
           ),
         ),
         centerTitle: true,
         backgroundColor: Colors.blueAccent,
       ),
       body: item == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
           : Padding(
               padding: const EdgeInsets.all(16.0),
               child: SingleChildScrollView(
@@ -61,10 +90,10 @@ class _VisualizacionItemScreenState
                     gradient: LinearGradient(
                       colors: [
                         Colors.orange.withOpacity(0.9),
-                        Colors.yellow.withOpacity(0.9), 
+                        Colors.yellow.withOpacity(0.9),
                       ],
-                       begin: Alignment.centerLeft,  
-                       end: Alignment.centerRight, 
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
                     ),
                     borderRadius: BorderRadius.circular(15),
                     boxShadow: [
@@ -79,18 +108,59 @@ class _VisualizacionItemScreenState
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                    
+                      // Imagen del ítem
+                      if (item?['sprites']?['default'] != null)
+                        Center(
+                          child: Image.network(
+                            item!['sprites']['default'],
+                            width: 80,
+                            height: 80,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      const SizedBox(height: 24),
+
+                      // Nombre del ítem
                       Center(
                         child: Text(
-                          'Nombre del Item:\n${item?['name']?.toUpperCase()}',
+                          '${item?['name']?.toUpperCase() ?? 'Desconocido'}',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
-                            color: Color.fromARGB(255, 20, 62, 176),
+                            color: Color.fromARGB(255, 0, 115, 255),
                           ),
                         ),
                       ),
+                      const SizedBox(height: 24),
+
+                      // Categoría del ítem
+                      if (item?['category']?['name'] != null)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Categoría: ',
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blueAccent,
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  '${item?['category']['name']?.toUpperCase() ?? 'Sin Categoría'}',
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       const SizedBox(height: 24),
 
                       // Detalles destacados
@@ -104,6 +174,7 @@ class _VisualizacionItemScreenState
                       ),
                       const SizedBox(height: 8),
 
+                      // Efecto
                       if (item?['effect_entries'] != null &&
                           (item?['effect_entries'] as List).isNotEmpty)
                         Padding(
@@ -114,15 +185,14 @@ class _VisualizacionItemScreenState
                               const Text(
                                 'Efecto: ',
                                 style: TextStyle(
-                                  color: Color.fromARGB(255, 71, 119, 250),
+                                  color: Colors.blueAccent,
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
-                              
                                 ),
                               ),
                               Expanded(
                                 child: Text(
-                                  '${item?['effect_entries'][0]['effect']}',
+                                  '${item?['effect_entries'][0]['effect'] ?? 'Sin descripción'}',
                                   style: const TextStyle(
                                     fontSize: 18,
                                     color: Color.fromARGB(255, 0, 0, 0),
@@ -132,8 +202,48 @@ class _VisualizacionItemScreenState
                             ],
                           ),
                         ),
-
                       const SizedBox(height: 16),
+
+                      // Generaciones y el índice de los juegos donde aparece el ítem
+                      const Text(
+                        'GENERACIONES DE JUEGO EN LAS QUE APARECE EL ÍTEM',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: Color.fromARGB(255, 20, 62, 176),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      if (item?['game_indices'] != null) 
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            for (var game in item!['game_indices'])
+                              if (game['generation']?['name'] != null && game['game_index'] != null)
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                  child: Text(
+                                    '${game['generation']['name'].toUpperCase()} | GAME INDEX: ${game['game_index']}',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                )
+                              else
+                                const Text(
+                                  'Datos incompletos para uno de los juegos.',
+                                  style: TextStyle(fontSize: 16, color: Colors.red),
+                                ),
+                          ],
+                        )
+                      else
+                        const Text(
+                          'No hay información de generaciones para este ítem.',
+                          style: TextStyle(fontSize: 18, color: Colors.red),
+                        ),
+
 
                       // Comentarios y favoritos
                       const Text(
@@ -156,6 +266,17 @@ class _VisualizacionItemScreenState
                       ),
                       const SizedBox(height: 16),
 
+                      // Botón para enviar el comentario
+                      ElevatedButton(
+                        onPressed: enviarComentario,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          textStyle: const TextStyle(fontSize: 18),
+                        ),
+                        child: const Text('Enviar Comentario'),
+                      ),
+                      const SizedBox(height: 24),
+
                       // Switch para marcar como favorito
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -174,54 +295,7 @@ class _VisualizacionItemScreenState
                           ),
                         ],
                       ),
-
-                      const SizedBox(height: 16),
-
-                      // Sección de lista completa
-                      const Text(
-                        'LISTA COMPLETA DE DETALLES',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Color.fromARGB(255, 21, 50, 124),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: item?.length ?? 0,
-                        itemBuilder: (context, index) {
-                          final key = item!.keys.elementAt(index);
-                          final value = item![key].toString();
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4.0),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '${key.toUpperCase()}: ',
-                                  style: const TextStyle(
-                                    color: Color.fromARGB(255, 71, 119, 250),
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(
-                                    value,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      color: Color.fromARGB(255, 0, 0, 0),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
+                      const SizedBox(height: 24),
                     ],
                   ),
                 ),
