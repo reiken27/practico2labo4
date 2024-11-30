@@ -24,7 +24,7 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
   @override
   void initState() {
     super.initState();
-    fetchItems('https://pokeapi.co/api/v2/item');  
+    fetchItems('https://pokeapi.co/api/v2/item');
   }
 
   @override
@@ -35,6 +35,8 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
   }
 
   Future<void> fetchItems(String url, {int retries = 3}) async {
+    if (isDisposed) return;
+
     setState(() {
       isLoading = true;
     });
@@ -49,27 +51,29 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
         if (!isDisposed) {
           for (var item in data['results']) {
             final imageUrl = await fetchItemImage(item['url']);
-            item['imageUrl'] = imageUrl; 
+            item['imageUrl'] = imageUrl;
           }
 
-          setState(() {
-            items.addAll(data['results']);
-            filteredItems = List.from(items);
-            nextUrl = data['next'];
-            isLoading = false;
-          });
+          if (!isDisposed) {
+            setState(() {
+              items.addAll(data['results']);
+              filteredItems = List.from(items);
+              nextUrl = data['next'];
+              isLoading = false;
+            });
+          }
         }
 
         if (nextUrl != null && !isDisposed) {
-          fetchItems(nextUrl!);
+          await fetchItems(nextUrl!);
         }
       } else {
         throw Exception('Error al cargar los items');
       }
     } on TimeoutException catch (_) {
-      if (retries > 0) {
-        fetchItems(url, retries: retries - 1);
-      } else {
+      if (retries > 0 && !isDisposed) {
+        await fetchItems(url, retries: retries - 1);
+      } else if (!isDisposed) {
         setState(() {
           isLoading = false;
         });
@@ -77,13 +81,19 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
             'Tiempo de espera agotado. No se pudo conectar a la API.');
       }
     } on http.ClientException catch (_) {
-      if (retries > 0) {
-        fetchItems(url, retries: retries - 1);
-      } else {
+      if (retries > 0 && !isDisposed) {
+        await fetchItems(url, retries: retries - 1);
+      } else if (!isDisposed) {
         setState(() {
           isLoading = false;
         });
         throw Exception('Error de conexión. Verifica tu red o la API.');
+      }
+    } finally {
+      if (!isDisposed) {
+        setState(() {
+          isLoading = false;
+        });
       }
     }
   }
@@ -113,7 +123,7 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
   }
 
   @override
-   Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -121,7 +131,7 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: Colors.white, 
+            color: Colors.white,
           ),
         ),
         centerTitle: true,
@@ -154,24 +164,26 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
                     itemCount: filteredItems.length,
                     itemBuilder: (context, index) {
                       final item = filteredItems[index];
-                      String imageUrl = item['imageUrl'] ?? '';  
+                      String imageUrl = item['imageUrl'] ?? '';
 
                       return Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 15, vertical: 10),
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
                             colors: [
                               Colors.orange,
-                              Colors.yellow,    
+                              Colors.yellow,
                             ],
-                            begin: Alignment.topLeft, 
-                            end: Alignment.bottomRight, 
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
                           borderRadius: BorderRadius.circular(15),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color.fromARGB(255, 71, 119, 250).withOpacity(0.2),
+                              color: const Color.fromARGB(255, 71, 119, 250)
+                                  .withOpacity(0.2),
                               blurRadius: 8,
                               spreadRadius: 2,
                               offset: const Offset(4, 4),
@@ -209,8 +221,7 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    VisualizacionItemScreen(
+                                builder: (context) => VisualizacionItemScreen(
                                   url: item['url'],
                                 ),
                               ),
@@ -226,4 +237,3 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
     );
   }
 }
-
