@@ -234,14 +234,14 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
                               else
                                 const Text(
                                   'Datos incompletos para uno de los juegos.',
-                                  style: TextStyle(fontSize: 16, color: Colors.red),
+                                  style: TextStyle(fontSize: 16, color: Color.fromARGB(255, 0, 0, 0)),
                                 ),
                           ],
                         )
                       else
                         const Text(
                           'No hay información de generaciones para este ítem.',
-                          style: TextStyle(fontSize: 18, color: Colors.red),
+                          style: TextStyle(fontSize: 18, color: Color.fromARGB(255, 0, 0, 0)),
                         ),
 
 
