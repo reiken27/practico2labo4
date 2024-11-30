@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -20,6 +21,7 @@ class _ListaPokemonidScreenState extends State<ListaPokemonidScreen> {
   String? nextUrl;
   bool isDisposed = false;
   Map<String, Color> typeColors = {};
+  final Map<String, List<String>> _pokemonTypesCache = {};
 
   @override
   void initState() {
@@ -111,6 +113,10 @@ class _ListaPokemonidScreenState extends State<ListaPokemonidScreen> {
 
   // Método que obtiene los tipos del Pokémon desde la API
   Future<List<String>> fetchPokemonTypes(String url) async {
+    if (_pokemonTypesCache.containsKey(url)) {
+      return _pokemonTypesCache[url]!;
+    }
+
     try {
       final response =
           await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
@@ -118,9 +124,15 @@ class _ListaPokemonidScreenState extends State<ListaPokemonidScreen> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final types = data['types'] as List<dynamic>;
-        return types.map((type) => type['type']['name'] as String).toList();
+        final typesList =
+            types.map((type) => type['type']['name'] as String).toList();
+
+        _pokemonTypesCache[url] = typesList;
+
+        return typesList;
       }
     } catch (e) {
+      log(e.toString());
       return [];
     }
 
@@ -217,7 +229,7 @@ class _ListaPokemonidScreenState extends State<ListaPokemonidScreen> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => VisualizacionPokemonScreen(
+                                      builder: (context) => VisualizacionPokemonidScreen(
                                         url: pokemon['url'],
                                       ),
                                     ),
