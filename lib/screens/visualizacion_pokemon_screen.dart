@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class VisualizacionPokemonScreen extends StatefulWidget {
   final String url;
@@ -23,20 +24,45 @@ class _VisualizacionPokemonScreenState
     fetchPokemon();
   }
 
+  void _loadSavedData(String pokemonId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isFavorite = prefs.getBool('isFavorite_$pokemonId') ?? false;
+      _controller.text = prefs.getString('comment_$pokemonId') ?? '';
+    });
+  }
+
+  void _saveSwitchState(String pokemonId, bool value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isFavorite_$pokemonId', value);
+  }
+
+  void _saveComment(String pokemonId, String value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('comment_$pokemonId', value);
+  }
+
   Future<void> fetchPokemon() async {
     try {
       final response = await http.get(Uri.parse(widget.url));
       if (response.statusCode == 200) {
-        setState(() {
-          pokemon = json.decode(response.body);
-        });
+        if (mounted) {
+          setState(() {
+            pokemon = json.decode(response.body);
+          });
+          if (pokemon != null && pokemon!['id'] != null) {
+            _loadSavedData(pokemon!['id'].toString());
+          }
+        }
       } else {
         throw Exception('Error al cargar los detalles del Pokémon');
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
     }
   }
 
@@ -56,7 +82,6 @@ class _VisualizacionPokemonScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        //appbar text color
         titleTextStyle: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,
@@ -173,22 +198,34 @@ class _VisualizacionPokemonScreenState
                               onChanged: (value) {
                                 setState(() {
                                   isFavorite = value;
+                                  _saveSwitchState(
+                                      pokemon!['id'].toString(), value);
                                 });
                               },
                             ),
                           ],
                         ),
-                        TextField(
+                        TextFormField(
                           controller: _controller,
                           decoration: const InputDecoration(
-                            labelText: 'Agregar comentario',
-                            labelStyle: TextStyle(color: Colors.white70),
+                            hintText: 'Ingresa un comentario',
                             border: OutlineInputBorder(),
                             focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.white),
+                              borderSide: BorderSide(
+                                color: Color.fromARGB(255, 0, 0, 0),
+                                width: 2.0,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Color.fromARGB(255, 255, 255, 255),
+                                width: 1.0,
+                              ),
                             ),
                           ),
-                          style: const TextStyle(color: Colors.white),
+                          onChanged: (value) {
+                            _saveComment(pokemon!['id'].toString(), value);
+                          },
                         ),
                       ],
                     ),
