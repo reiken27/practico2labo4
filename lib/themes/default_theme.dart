@@ -58,7 +58,7 @@ class DefaultTheme {
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      hintStyle: TextStyle(color: const Color.fromARGB(255, 117, 117, 117)),
+      hintStyle: const TextStyle(color: Color.fromARGB(255, 117, 117, 117)),
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: primaryDark,

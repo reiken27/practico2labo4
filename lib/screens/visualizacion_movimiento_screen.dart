@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -16,7 +16,7 @@ class _VisualizacionMovimientoScreenState
     extends State<VisualizacionMovimientoScreen> {
   Map<String, dynamic>? movimiento;
   bool isFavorite = false;
-  String? pokemonImageUrl; // Para almacenar la URL de la imagen del Pokémon
+  String? pokemonImageUrl; 
 
   final _controller = TextEditingController();
 
@@ -45,7 +45,9 @@ class _VisualizacionMovimientoScreenState
 
   // Función para obtener la imagen del Pokémon
   Future<void> fetchPokemonImage(int randomId) async {
-    final url = 'https://pokeapi.co/api/v2/pokemon/$randomId/';
+    final apiImageUrl = dotenv.env['API_IMAGE_URL'];
+    final url = '$apiImageUrl/pokemon/$randomId/';
+
     final response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
@@ -246,8 +248,8 @@ class _VisualizacionMovimientoScreenState
             ),
     );
   }
-
 }
+
 class DetailRow extends StatelessWidget {
   final String label;
   final String value;
@@ -290,3 +292,4 @@ class DetailRow extends StatelessWidget {
     );
   }
 }
+
