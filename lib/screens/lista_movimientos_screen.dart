@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
-
-import 'package:audioplayers/audioplayers.dart'; // Importación para el sonido
+import 'package:flutter_dotenv/flutter_dotenv.dart'; 
+import 'package:audioplayers/audioplayers.dart'; 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:practico2labo4/screens/visualizacion_movimiento_screen.dart';
@@ -16,10 +16,10 @@ class ListaMovimientosScreen extends StatefulWidget {
 
 class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
   final TextEditingController searchController = TextEditingController();
-  final AudioPlayer _audioPlayer = AudioPlayer(); // Instancia para el sonido
+  final AudioPlayer _audioPlayer = AudioPlayer(); 
   List<dynamic> movimientos = [];
   List<dynamic> filteredMovimientos = [];
-  Map<String, String> movimientoImages = {}; // Map para almacenar imágenes
+  Map<String, String> movimientoImages = {}; 
   bool isLoading = false;
   String? nextUrl;
   bool isDisposed = false;
@@ -27,7 +27,9 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
   @override
   void initState() {
     super.initState();
-    fetchMovimientos('https://pokeapi.co/api/v2/move');
+    // Uso de dotenv para cargar la URL base desde variables de entorno
+    final apiBaseUrl = dotenv.env['API_BASE_URL'];
+    fetchMovimientos('$apiBaseUrl/move');
   }
 
   @override
@@ -92,8 +94,9 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
   }
 
   Future<void> fetchPokemonImage(String moveName) async {
+    final apiImageUrl = dotenv.env['API_IMAGE_URL'] ?? 'https://pokeapi.co/api/v2/pokemon';
     final randomId = Random().nextInt(898) + 1;
-    final url = 'https://pokeapi.co/api/v2/pokemon/$randomId/';
+    final url = '$apiImageUrl/$randomId/';
 
     try {
       final response = await http.get(Uri.parse(url));
