@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
-import 'package:flutter_dotenv/flutter_dotenv.dart'; 
-import 'package:audioplayers/audioplayers.dart'; 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:practico2labo4/screens/visualizacion_movimiento_screen.dart';
@@ -16,20 +16,26 @@ class ListaMovimientosScreen extends StatefulWidget {
 
 class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
   final TextEditingController searchController = TextEditingController();
-  final AudioPlayer _audioPlayer = AudioPlayer(); 
+  final AudioPlayer _audioPlayer = AudioPlayer();
   List<dynamic> movimientos = [];
   List<dynamic> filteredMovimientos = [];
-  Map<String, String> movimientoImages = {}; 
+  Map<String, String> movimientoImages = {};
   bool isLoading = false;
   String? nextUrl;
   bool isDisposed = false;
 
+  // URLs desde el archivo .env
+  final String? apiUrl = dotenv.env['API_URL'];
+  final String? apiImageUrl = dotenv.env['API_IMAGE_URL'];
+
   @override
   void initState() {
     super.initState();
-    // Uso de dotenv para cargar la URL base desde variables de entorno
-    final apiBaseUrl = dotenv.env['API_BASE_URL'];
-    fetchMovimientos('$apiBaseUrl/move');
+    if (apiUrl != null) {
+      fetchMovimientos('$apiUrl/move');
+    } else {
+      print('Error: API_URL no está definida en el archivo .env');
+    }
   }
 
   @override
@@ -78,8 +84,7 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
         setState(() {
           isLoading = false;
         });
-        throw Exception(
-            'Tiempo de espera agotado. No se pudo conectar a la API.');
+        print('Tiempo de espera agotado. No se pudo conectar a la API.');
       }
     } on http.ClientException catch (_) {
       if (retries > 0) {
@@ -88,28 +93,29 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
         setState(() {
           isLoading = false;
         });
-        throw Exception('Error de conexión. Verifica tu red o la API.');
+        print('Error de conexión. Verifica tu red o la API.');
       }
     }
   }
 
   Future<void> fetchPokemonImage(String moveName) async {
-    final apiImageUrl = dotenv.env['API_IMAGE_URL'] ?? 'https://pokeapi.co/api/v2/pokemon';
-    final randomId = Random().nextInt(898) + 1;
-    final url = '$apiImageUrl/$randomId/';
+    final randomId = Random().nextInt(898) + 1; // Generar un ID aleatorio válido
+    if (apiImageUrl == null) {
+      print('Error: API_IMAGE_URL no está definida en el archivo .env');
+      return;
+    }
+    final url = '$apiImageUrl$randomId.png';
+
+    print('Fetching image from: $url'); // Depuración
 
     try {
       final response = await http.get(Uri.parse(url));
-
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final imageUrl = data['sprites']['front_default'];
-
-        if (!isDisposed && imageUrl != null) {
-          setState(() {
-            movimientoImages[moveName] = imageUrl;
-          });
-        }
+        setState(() {
+          movimientoImages[moveName] = url; // Directamente usamos la URL generada
+        });
+      } else {
+        print('Error ${response.statusCode} al cargar la imagen para $moveName');
       }
     } catch (e) {
       print('Error al cargar la imagen del Pokémon: $e');
@@ -142,8 +148,7 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
 
   Future<void> _playClickSound() async {
     try {
-      await _audioPlayer
-          .play(AssetSource('sounds/pokeclick.mp3')); // Reproducción del sonido
+      await _audioPlayer.play(AssetSource('sounds/pokeclick.mp3'));
     } catch (e) {
       print('Error al reproducir el sonido: $e');
     }
@@ -160,7 +165,6 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
       ),
       body: Stack(
         children: [
-          // Fondo de imagen
           Positioned.fill(
             child: Container(
               decoration: const BoxDecoration(
@@ -171,7 +175,6 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
               ),
             ),
           ),
-          // Contenido principal
           Column(
             children: [
               Padding(
@@ -241,9 +244,8 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
                               trailing: const Icon(Icons.arrow_forward_ios,
                                   color: Colors.black54),
                               onTap: () async {
-                                await _playClickSound(); // Reproducción del sonido
+                                await _playClickSound();
                                 Navigator.push(
-                                  // ignore: use_build_context_synchronously
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
