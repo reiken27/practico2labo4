@@ -531,3 +531,4 @@ Widget buildEvolutionChain() {
     return 'N/A';
   }
 }
+

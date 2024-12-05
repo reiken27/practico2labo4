@@ -29,8 +29,8 @@ class _ListaPokemonScreenState extends State<ListaPokemonScreen> {
   @override
   void initState() {
     super.initState();
-    final API_URL = dotenv.env['API_URL'];
-    fetchPokemon("$API_URL/pokemon");
+    final apiUrl = dotenv.env['API_URL'];
+    fetchPokemon("$apiUrl/pokemon");
     initializeTypeColors();
   }
 
