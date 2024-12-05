@@ -532,5 +532,3 @@ Widget buildEvolutionChain() {
   }
 }
 
-
-//prueba de nueva rama
