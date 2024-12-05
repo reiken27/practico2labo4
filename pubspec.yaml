@@ -2,7 +2,7 @@ name: practico2labo4
 description: "Flutter base project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 version: 0.1.0
 
 environment:
@@ -20,7 +20,7 @@ dependencies:
   http: ^1.0.0 # O la versión más reciente compatible con tu proyecto
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2  
+  cupertino_icons: ^1.0.2
   shared_preferences: ^2.3.2
   cached_network_image: ^3.2.0
   provider: ^6.1.2
@@ -43,7 +43,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -53,14 +52,13 @@ flutter:
   assets:
     - assets/loading.gif
     - assets/images/
-    - assets/avatars/
     - assets/fonts/
     - assets/images/pokemonblack.png
     - assets/images/pokemon-wall.png
     - assets/images/pokeball.png
     - assets/images/pokeball_icon.png
     - assets/sounds/pokeclick.mp3
-  
+
     - assets/images/pokeback.png
     - assets/images/pokefondo.jpg
     - .env
@@ -92,9 +90,7 @@ flutter:
   # see https://flutter.dev/custom-fonts/#from-packages
 
   fonts:
-  - family: PokemonFont
-    fonts:
-      - asset: assets/fonts/Pokemon.ttf
-      - asset: assets/fonts/Pokemonsolid.ttf
-
-
+    - family: PokemonFont
+      fonts:
+        - asset: assets/fonts/Pokemon.ttf
+        - asset: assets/fonts/Pokemonsolid.ttf

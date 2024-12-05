@@ -80,7 +80,7 @@ class _ListaPokemonScreenState extends State<ListaPokemonScreen> {
 
         if (!isDisposed) {
           setState(() {
-            pokemons.addAll(data['results']);
+            pokemons.addAll(data['data']['results']);
             filteredPokemon = List.from(pokemons);
             nextUrl = data['next'];
             isLoading = false;
