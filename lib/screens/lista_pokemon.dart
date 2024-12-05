@@ -4,6 +4,7 @@ import 'dart:developer';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:practico2labo4/screens/screens.dart';
 
@@ -23,11 +24,13 @@ class _ListaPokemonScreenState extends State<ListaPokemonScreen> {
   bool isDisposed = false;
   Map<String, Color> typeColors = {};
   final Map<String, List<String>> _pokemonTypesCache = {};
+  final apiImageUrl = dotenv.env['API_IMAGE_URL'];
 
   @override
   void initState() {
     super.initState();
-    fetchPokemon('https://pokeapi.co/api/v2/pokemon');
+    final apiUrl = dotenv.env['API_URL'];
+    fetchPokemon("$apiUrl/pokemon");
     initializeTypeColors();
   }
 
@@ -155,7 +158,7 @@ class _ListaPokemonScreenState extends State<ListaPokemonScreen> {
   }
 
   String getPokemonImageUrl(int index) {
-    return 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${index + 1}.png';
+    return '$apiImageUrl/${index + 1}.png';
   }
 
   @override
