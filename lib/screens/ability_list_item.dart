@@ -200,6 +200,27 @@ class _AbilityListItemState extends State<AbilityListItem> {
                                               url: pokemonUrl),
                                     ),
                                   );
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                },
+                                //Cuando se mantiene precionado
+                                //cambia el color de fondo
+                                onTapDown: (_) {
+                                  setState(() {
+                                    tappedPokemonId =
+                                        pokemonId; // Marcar el Pokémon como presionado
+                                  });
+                                },
+                                onTapUp: (_) {
+                                  setState(() {
+                                    tappedPokemonId =
+                                        null; // Quitar el estado de presionado
+                                  });
+                                },
+                                onTapCancel: () {
+                                  setState(() {
+                                    tappedPokemonId =
+                                        null; // Quitar el estado si el toque es cancelado
+                                  });
                                 },
                                 child: Container(
                                   margin:
