@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:practico2labo4/models/model_pokemon.dart';
@@ -21,6 +21,7 @@ class _VisualizacionPokemonidScreenState
   ModelEvolutionChain? evolutionChain;
   bool isFavorite = false;
   final TextEditingController _controller = TextEditingController();
+  final apiImageUrl = dotenv.env['API_IMAGE_URL'];
 
   Future<void> _loadPokemonData() async {
     if (pokemon?.id == null) return;
@@ -400,8 +401,7 @@ Widget buildEvolutionChain() {
     );
   }
 
-  const String baseImageUrl =
-      'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/';
+
 
   List<Chain> evolutionSteps = [];
   Chain? current = evolutionChain!.chain;
@@ -443,9 +443,9 @@ Widget buildEvolutionChain() {
             final next = evolutionSteps[index + 1];
 
             final currentImageUrl =
-                '$baseImageUrl${current.species!.url!.split('/')[6]}.png';
+                '$apiImageUrl${current.species!.url!.split('/')[6]}.png';
             final nextImageUrl =
-                '$baseImageUrl${next.species!.url!.split('/')[6]}.png';
+                '$apiImageUrl${next.species!.url!.split('/')[6]}.png';
 
             return Column(
               children: [
