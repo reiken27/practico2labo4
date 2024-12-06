@@ -52,7 +52,7 @@ class _AbilityListScreenState extends State<AbilityListScreen> {
 
         if (!isDisposed) {
           setState(() {
-            abilitys.addAll(data['results']);
+            abilitys.addAll(data['data']['results']);
             filteredAbility = List.from(abilitys);
             nextUrl = data['next'];
             isLoading = false;
