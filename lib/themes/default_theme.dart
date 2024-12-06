@@ -10,7 +10,6 @@ class DefaultTheme {
   static final ThemeData lightTheme = ThemeData.light().copyWith(
     primaryColor: const Color.fromARGB(255, 56, 121, 225),
     scaffoldBackgroundColor: Colors.white,
-  
     appBarTheme: const AppBarTheme(
       backgroundColor: primaryDark,
       foregroundColor: Colors.white,
@@ -59,7 +58,7 @@ class DefaultTheme {
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      hintStyle: TextStyle(color: Colors.grey.shade600),
+      hintStyle: const TextStyle(color: Color.fromARGB(255, 117, 117, 117)),
     ),
     bottomNavigationBarTheme: const BottomNavigationBarThemeData(
       backgroundColor: primaryDark,
@@ -78,8 +77,7 @@ class DefaultTheme {
       titleTextStyle: TextStyle(
         fontSize: 20,
         fontWeight: FontWeight.bold,
-        color:
-            formElementsColor, 
+        color: formElementsColor,
       ),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(

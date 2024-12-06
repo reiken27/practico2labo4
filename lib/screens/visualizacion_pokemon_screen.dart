@@ -1,6 +1,6 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:practico2labo4/models/model_pokemon.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class VisualizacionPokemonScreen extends StatefulWidget {
@@ -14,7 +14,7 @@ class VisualizacionPokemonScreen extends StatefulWidget {
 
 class _VisualizacionPokemonScreenState
     extends State<VisualizacionPokemonScreen> {
-  Map<String, dynamic>? pokemon;
+  Pokemon? pokemon;
   bool isFavorite = false;
   final _controller = TextEditingController();
 
@@ -48,10 +48,10 @@ class _VisualizacionPokemonScreenState
       if (response.statusCode == 200) {
         if (mounted) {
           setState(() {
-            pokemon = json.decode(response.body);
+            pokemon = pokemonFromJson(response.body);
           });
-          if (pokemon != null && pokemon!['id'] != null) {
-            _loadSavedData(pokemon!['id'].toString());
+          if (pokemon != null && pokemon!.id != null) {
+            _loadSavedData(pokemon!.id.toString());
           }
         }
       } else {
@@ -67,15 +67,15 @@ class _VisualizacionPokemonScreenState
   }
 
   String? getPokemonSprite() {
-    return pokemon?['sprites']?['other']?['official-artwork']?['front_default'];
+    return pokemon?.sprites?.other?.officialArtwork?.frontDefault;
   }
 
   List<dynamic> getPokemonTypes() {
-    return pokemon?['types'] ?? [];
+    return pokemon?.types ?? [];
   }
 
   List<dynamic> getPokemonStats() {
-    return pokemon?['stats'] ?? [];
+    return pokemon?.stats ?? [];
   }
 
   @override
@@ -91,9 +91,9 @@ class _VisualizacionPokemonScreenState
         foregroundColor: Colors.white,
         title: Text(pokemon == null
             ? 'Cargando Pokémon...'
-            : '${pokemon?['name']?.toUpperCase() ?? "Pokémon"}'),
+            : pokemon?.name?.toUpperCase() ?? "Pokémon"),
         backgroundColor: _getTypeColor(getPokemonTypes().isNotEmpty
-            ? getPokemonTypes().first['type']['name']
+            ? getPokemonTypes().first.type.name
             : ''),
       ),
       body: pokemon == null
@@ -123,7 +123,7 @@ class _VisualizacionPokemonScreenState
                           ),
                         const SizedBox(height: 16),
                         Text(
-                          pokemon?['name']?.toUpperCase() ?? '',
+                          pokemon?.name?.toUpperCase() ?? '',
                           style: const TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
@@ -137,11 +137,11 @@ class _VisualizacionPokemonScreenState
                               .map<Widget>(
                                 (type) => Chip(
                                   label: Text(
-                                    type['type']['name'].toUpperCase(),
+                                    type.type.name.toUpperCase(),
                                     style: const TextStyle(color: Colors.white),
                                   ),
                                   backgroundColor:
-                                      _getTypeColor(type['type']['name']),
+                                      _getTypeColor(type.type.name),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10),
                                     side: const BorderSide(
@@ -161,7 +161,7 @@ class _VisualizacionPokemonScreenState
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        stat['stat']['name']
+                                        stat.stat.name
                                             .toUpperCase()
                                             .replaceAll('-', ' '),
                                         style: const TextStyle(
@@ -170,7 +170,7 @@ class _VisualizacionPokemonScreenState
                                             fontWeight: FontWeight.w600),
                                       ),
                                       Text(
-                                        stat['base_stat'].toString(),
+                                        stat.baseStat.toString(),
                                         style: const TextStyle(
                                           fontSize: 16,
                                           color: Colors.white70,
@@ -199,7 +199,7 @@ class _VisualizacionPokemonScreenState
                                 setState(() {
                                   isFavorite = value;
                                   _saveSwitchState(
-                                      pokemon!['id'].toString(), value);
+                                      pokemon!.id.toString(), value);
                                 });
                               },
                             ),
@@ -224,7 +224,7 @@ class _VisualizacionPokemonScreenState
                             ),
                           ),
                           onChanged: (value) {
-                            _saveComment(pokemon!['id'].toString(), value);
+                            _saveComment(pokemon!.id.toString(), value);
                           },
                         ),
                       ],
@@ -281,6 +281,6 @@ class _VisualizacionPokemonScreenState
     if (pokemon == null) return Colors.grey.shade200;
     final types = getPokemonTypes();
     if (types.isEmpty) return Colors.grey.shade200;
-    return _getTypeColor(types.first['type']['name']);
+    return _getTypeColor(types.first.type.name);
   }
 }
