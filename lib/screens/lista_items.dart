@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:practico2labo4/screens/screens.dart';
 import 'package:practico2labo4/screens/visualizacion_item_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ListaItemsScreen extends StatefulWidget {
   const ListaItemsScreen({super.key});
@@ -17,14 +18,18 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
   final TextEditingController searchController = TextEditingController();
   List<dynamic> items = [];
   List<dynamic> filteredItems = [];
+  Map<String, bool> favoriteItems = {};
+
   bool isLoading = false;
   String? nextUrl;
   bool isDisposed = false;
 
   @override
+   @override
   void initState() {
     super.initState();
-    fetchItems('https://pokeapi.co/api/v2/item');
+    final apiUrl = dotenv.env['API_URL'];
+    fetchItems('$apiUrl/item');
   }
 
   @override
@@ -32,6 +37,21 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
     isDisposed = true;
     searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> saveFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('favoriteItems', json.encode(favoriteItems));
+  }
+
+  Future<void> loadFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedFavorites = prefs.getString('favoriteItems');
+    if (storedFavorites != null) {
+      setState(() {
+        favoriteItems = Map<String, bool>.from(json.decode(storedFavorites));
+      });
+    }
   }
 
   Future<void> fetchItems(String url, {int retries = 3}) async {
@@ -124,6 +144,8 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    loadFavorites();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -215,8 +237,23 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
                               color: Colors.black54,
                             ),
                           ),
-                          trailing: const Icon(Icons.arrow_forward_ios,
-                              color: Colors.black54),
+                          trailing: IconButton(
+                            icon: Icon(
+                              favoriteItems[item?['name']] == true
+                                  ? Icons.favorite // Estrella llena
+                                  : Icons.favorite_border, // Estrella vacía
+                              color: favoriteItems[item?['name']] == true
+                                  ? Colors.red
+                                  : const Color.fromARGB(255, 237, 242, 244),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                favoriteItems[item?['name']] =
+                                    !(favoriteItems[item?['name']] ?? false);
+                              });
+                              saveFavorites(); // Guarda los favoritos
+                            },
+                          ),
                           onTap: () {
                             Navigator.push(
                               context,
