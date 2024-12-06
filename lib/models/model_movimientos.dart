@@ -111,3 +111,4 @@ class Generation {
         "url": url,
       };
 }
+
