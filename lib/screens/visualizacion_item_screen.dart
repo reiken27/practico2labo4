@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class VisualizacionItemScreen extends StatefulWidget {
   final String url;
@@ -14,13 +15,29 @@ class VisualizacionItemScreen extends StatefulWidget {
 class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
   Map<String, dynamic>? item;
   bool isFavorite = false;
-
+  Map<String, bool> favoriteItems = {};
   final _controller = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    loadFavorites();
     fetchItem();
+  }
+
+  Future<void> saveFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('favoriteItems', json.encode(favoriteItems));
+  }
+
+  Future<void> loadFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedFavorites = prefs.getString('favoriteItems');
+    if (storedFavorites != null) {
+      setState(() {
+        favoriteItems = Map<String, bool>.from(json.decode(storedFavorites));
+      });
+    }
   }
 
   Future<void> fetchItem() async {
@@ -29,7 +46,7 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          item = data; 
+          item = data;
         });
       } else {
         throw Exception('Error al cargar el item: ${response.statusCode}');
@@ -37,7 +54,7 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
     } catch (e) {
       print('Error al cargar el item: $e');
       setState(() {
-        item = null; 
+        item = null;
       });
     }
   }
@@ -113,7 +130,6 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
                           ),
                         ),
                       const SizedBox(height: 24),
-
                       Center(
                         child: Text(
                           '${item?['name']?.toUpperCase() ?? 'Desconocido'}',
@@ -126,7 +142,6 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
                         ),
                       ),
                       const SizedBox(height: 24),
-
                       if (item?['category']?['name'] != null)
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 4.0),
@@ -154,7 +169,6 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
                           ),
                         ),
                       const SizedBox(height: 24),
-
                       const Text(
                         'DETALLES DESTACADOS',
                         style: TextStyle(
@@ -164,7 +178,6 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-
                       if (item?['effect_entries'] != null &&
                           (item?['effect_entries'] as List).isNotEmpty)
                         Padding(
@@ -193,7 +206,6 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
                           ),
                         ),
                       const SizedBox(height: 16),
-
                       const Text(
                         'GENERACIONES DE JUEGO EN LAS QUE APARECE EL ÍTEM',
                         style: TextStyle(
@@ -203,15 +215,16 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-
-                      if (item?['game_indices'] != null) 
+                      if (item?['game_indices'] != null)
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             for (var game in item!['game_indices'])
-                              if (game['generation']?['name'] != null && game['game_index'] != null)
+                              if (game['generation']?['name'] != null &&
+                                  game['game_index'] != null)
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 4.0),
                                   child: Text(
                                     '${game['generation']['name'].toUpperCase()} | GAME INDEX: ${game['game_index']}',
                                     style: const TextStyle(
@@ -223,17 +236,19 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
                               else
                                 const Text(
                                   'Datos incompletos para uno de los juegos.',
-                                  style: TextStyle(fontSize: 16, color: Color.fromARGB(255, 0, 0, 0)),
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      color: Color.fromARGB(255, 0, 0, 0)),
                                 ),
                           ],
                         )
                       else
                         const Text(
                           'No hay información de generaciones para este ítem.',
-                          style: TextStyle(fontSize: 18, color: Color.fromARGB(255, 0, 0, 0)),
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: Color.fromARGB(255, 0, 0, 0)),
                         ),
-
-
                       const Text(
                         'COMENTARIOS Y FAVORITOS',
                         style: TextStyle(
@@ -243,7 +258,6 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-
                       TextFormField(
                         controller: _controller,
                         decoration: const InputDecoration(
@@ -252,35 +266,43 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
-
                       ElevatedButton(
                         onPressed: enviarComentario,
                         style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 10),
                           textStyle: const TextStyle(fontSize: 18),
                         ),
                         child: const Text('Enviar Comentario'),
                       ),
                       const SizedBox(height: 24),
-
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           const Text(
-                            'ES FAVORITO:',
-                            style: TextStyle(fontSize: 17),
+                            'Agregar a favoritos:',
+                            style: TextStyle(fontSize: 16),
                           ),
-                          Switch(
-                            value: isFavorite,
-                            onChanged: (value) {
+                          IconButton(
+                            icon: Icon(
+                              favoriteItems[item?['name']] == true
+                                  ? Icons.favorite // Estrella llena
+                                  : Icons.favorite_border, // Estrella vacía
+                              color: favoriteItems[item?['name']] == true
+                                  ? Colors.red
+                                  : const Color.fromARGB(255, 237, 242, 244),
+                            ),
+                            onPressed: () {
                               setState(() {
-                                isFavorite = value;
+                                favoriteItems[item?['name']] =
+                                    !(favoriteItems[item?['name']] ?? false);
                               });
+                              saveFavorites(); // Guarda los favoritos
                             },
                           ),
+                          const SizedBox(height: 24),
                         ],
                       ),
-                      const SizedBox(height: 24),
                     ],
                   ),
                 ),
