@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:practico2labo4/screens/screens.dart';
-//import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AbilityListScreen extends StatefulWidget {
@@ -27,10 +27,7 @@ class _AbilityListScreenState extends State<AbilityListScreen> {
   @override
   void initState() {
     super.initState();
-    //final apiUrl = dotenv.env['API_URL']; dejada para que se vea el codigo original
-    //final apiUrl = dotenv.env['API_URL'];
-    const apiUrl = 'https://pokeapi.co/api/v2/';
-    //Se deja la url directamente para que sea funcional para el resto hasta que solucionen sus codigos
+    final apiUrl = dotenv.env['API_URL'];
     fetchAbility('$apiUrl/ability');
   }
 
