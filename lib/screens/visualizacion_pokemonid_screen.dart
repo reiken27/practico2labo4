@@ -21,7 +21,7 @@ class _VisualizacionPokemonidScreenState
   ModelEvolutionChain? evolutionChain;
   bool isFavorite = false;
   final TextEditingController _controller = TextEditingController();
-  final apiImageUrl = dotenv.env['API_IMAGE_URL'];
+  final apiImageUrl = dotenv.env['API_ARTWORK_URL'];
 
   Future<void> _loadPokemonData() async {
     if (pokemon?.id == null) return;
