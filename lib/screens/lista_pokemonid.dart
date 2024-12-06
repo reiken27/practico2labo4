@@ -4,6 +4,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:practico2labo4/screens/screens.dart';
 
 class ListaPokemonidScreen extends StatefulWidget {
@@ -22,11 +23,13 @@ class _ListaPokemonidScreenState extends State<ListaPokemonidScreen> {
   bool isDisposed = false;
   Map<String, Color> typeColors = {};
   final Map<String, List<String>> _pokemonTypesCache = {};
+  final apiImageUrl = dotenv.env['API_IMAGE_URL'];
 
   @override
   void initState() {
     super.initState();
-    fetchPokemon('https://pokeapi.co/api/v2/pokemon');
+    final apiUrl = dotenv.env['API_URL'];
+    fetchPokemon("$apiUrl/pokemon");
     initializeTypeColors();
   }
 
@@ -76,7 +79,7 @@ class _ListaPokemonidScreenState extends State<ListaPokemonidScreen> {
 
         if (!isDisposed) {
           setState(() {
-            pokemons.addAll(data['results']);
+            pokemons.addAll(data['data']['results']);
             filteredPokemon = List.from(pokemons);
             nextUrl = data['next'];
             isLoading = false;
