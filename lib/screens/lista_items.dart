@@ -240,8 +240,8 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
                           trailing: IconButton(
                             icon: Icon(
                               favoriteItems[item?['name']] == true
-                                  ? Icons.favorite // Estrella llena
-                                  : Icons.favorite_border, // Estrella vacía
+                                  ? Icons.favorite 
+                                  : Icons.favorite_border, 
                               color: favoriteItems[item?['name']] == true
                                   ? Colors.red
                                   : const Color.fromARGB(255, 237, 242, 244),
@@ -251,7 +251,7 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
                                 favoriteItems[item?['name']] =
                                     !(favoriteItems[item?['name']] ?? false);
                               });
-                              saveFavorites(); // Guarda los favoritos
+                              saveFavorites(); 
                             },
                           ),
                           onTap: () {
