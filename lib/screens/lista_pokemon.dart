@@ -29,8 +29,8 @@ class _ListaPokemonScreenState extends State<ListaPokemonScreen> {
   @override
   void initState() {
     super.initState();
-    final apiUrl = dotenv.env['API_URL'];
-    fetchPokemon("$apiUrl/pokemon");
+    final apiUrl = dotenv.env['API_URL'] ?? 'https://localhost:8000/pokemon';
+    fetchPokemon(1, retries: 3, apiUrl: apiUrl);
     initializeTypeColors();
   }
 
@@ -66,10 +66,16 @@ class _ListaPokemonScreenState extends State<ListaPokemonScreen> {
     };
   }
 
-  Future<void> fetchPokemon(String url, {int retries = 3}) async {
+  Future<void> fetchPokemon(int page,
+      {int retries = 3, required String apiUrl}) async {
+    if (isDisposed) return; // Detener si el widget está desmontado
+
     setState(() {
       isLoading = true;
     });
+
+    final url = '$apiUrl/pokemon?page=$page';
+    print('Fetching: $url'); // Para depuración
 
     try {
       final response =
@@ -77,25 +83,28 @@ class _ListaPokemonScreenState extends State<ListaPokemonScreen> {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        print('Datos recibidos: ${data['data']['results']}'); // Para depuración
 
         if (!isDisposed) {
           setState(() {
-            pokemons.addAll(data['data']['results']);
+            pokemons.addAll(data['data']['results'].where((newPokemon) =>
+                !pokemons.any((existingPokemon) =>
+                    existingPokemon['name'] == newPokemon['name'])));
             filteredPokemon = List.from(pokemons);
-            nextUrl = data['next'];
             isLoading = false;
           });
         }
 
-        if (nextUrl != null && !isDisposed) {
-          fetchPokemon(nextUrl!);
+        // Verificar si hay más datos
+        if (data['data']['results'].isNotEmpty && !isDisposed) {
+          await fetchPokemon(page + 1, apiUrl: apiUrl); // Incrementa la página
         }
       } else {
         throw Exception('Error al cargar la lista de Pokémon');
       }
     } on TimeoutException catch (_) {
       if (retries > 0) {
-        fetchPokemon(url, retries: retries - 1);
+        await fetchPokemon(page, retries: retries - 1, apiUrl: apiUrl);
       } else {
         setState(() {
           isLoading = false;
@@ -105,7 +114,7 @@ class _ListaPokemonScreenState extends State<ListaPokemonScreen> {
       }
     } on http.ClientException catch (_) {
       if (retries > 0) {
-        fetchPokemon(url, retries: retries - 1);
+        await fetchPokemon(page, retries: retries - 1, apiUrl: apiUrl);
       } else {
         setState(() {
           isLoading = false;
