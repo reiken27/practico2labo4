@@ -32,7 +32,7 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
   void initState() {
     super.initState();
     if (apiUrl != null) {
-      fetchMovimientos('$apiUrl/move');
+      fetchMovimientos('$apiUrl/moves');
     } else {
       print('Error: API_URL no está definida en el archivo .env');
     }
@@ -59,14 +59,14 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
 
         if (!isDisposed) {
           setState(() {
-            movimientos.addAll(data['results']);
+            movimientos.addAll(data['data']['results']);
             filteredMovimientos = List.from(movimientos);
             nextUrl = data['next'];
             isLoading = false;
           });
 
           // Cargar imágenes de Pokémon
-          for (var movimiento in data['results']) {
+          for (var movimiento in movimientos) {
             fetchPokemonImage(movimiento['name']);
           }
         }
@@ -99,7 +99,8 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
   }
 
   Future<void> fetchPokemonImage(String moveName) async {
-    final randomId = Random().nextInt(898) + 1; // Generar un ID aleatorio válido
+    final randomId =
+        Random().nextInt(898) + 1; // Generar un ID aleatorio válido
     if (apiImageUrl == null) {
       print('Error: API_IMAGE_URL no está definida en el archivo .env');
       return;
@@ -112,10 +113,12 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         setState(() {
-          movimientoImages[moveName] = url; // Directamente usamos la URL generada
+          movimientoImages[moveName] =
+              url; // Directamente usamos la URL generada
         });
       } else {
-        print('Error ${response.statusCode} al cargar la imagen para $moveName');
+        print(
+            'Error ${response.statusCode} al cargar la imagen para $moveName');
       }
     } catch (e) {
       print('Error al cargar la imagen del Pokémon: $e');

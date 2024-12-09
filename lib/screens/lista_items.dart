@@ -25,7 +25,7 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
   bool isDisposed = false;
 
   @override
-   @override
+  @override
   void initState() {
     super.initState();
     final apiUrl = dotenv.env['API_URL'];
@@ -69,14 +69,14 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
         final data = json.decode(response.body);
 
         if (!isDisposed) {
-          for (var item in data['results']) {
+          for (var item in data['data']['results']) {
             final imageUrl = await fetchItemImage(item['url']);
             item['imageUrl'] = imageUrl;
           }
 
           if (!isDisposed) {
             setState(() {
-              items.addAll(data['results']);
+              items.addAll(data['data']['results']);
               filteredItems = List.from(items);
               nextUrl = data['next'];
               isLoading = false;
@@ -240,8 +240,8 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
                           trailing: IconButton(
                             icon: Icon(
                               favoriteItems[item?['name']] == true
-                                  ? Icons.favorite 
-                                  : Icons.favorite_border, 
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
                               color: favoriteItems[item?['name']] == true
                                   ? Colors.red
                                   : const Color.fromARGB(255, 237, 242, 244),
@@ -251,7 +251,7 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
                                 favoriteItems[item?['name']] =
                                     !(favoriteItems[item?['name']] ?? false);
                               });
-                              saveFavorites(); 
+                              saveFavorites();
                             },
                           ),
                           onTap: () {
