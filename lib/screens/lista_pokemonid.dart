@@ -74,15 +74,13 @@ class _ListaPokemonidScreenState extends State<ListaPokemonidScreen> {
     });
 
     final url = '$apiUrl/pokemon?page=$page';
-    print('Fetching: $url'); 
-
+    
     try {
       final response =
           await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        print('Datos recibidos: ${data['data']['results']}'); 
 
         if (!isDisposed) {
           setState(() {
