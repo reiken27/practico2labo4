@@ -68,14 +68,13 @@ class _ListaPokemonScreenState extends State<ListaPokemonScreen> {
 
   Future<void> fetchPokemon(int page,
       {int retries = 3, required String apiUrl}) async {
-    if (isDisposed) return; // Detener si el widget está desmontado
+    if (isDisposed) return;
 
     setState(() {
       isLoading = true;
     });
 
     final url = '$apiUrl/pokemon?page=$page';
-    print('Fetching: $url'); // Para depuración
 
     try {
       final response =
@@ -83,7 +82,6 @@ class _ListaPokemonScreenState extends State<ListaPokemonScreen> {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        print('Datos recibidos: ${data['data']['results']}'); // Para depuración
 
         if (!isDisposed) {
           setState(() {
@@ -95,9 +93,8 @@ class _ListaPokemonScreenState extends State<ListaPokemonScreen> {
           });
         }
 
-        // Verificar si hay más datos
         if (data['data']['results'].isNotEmpty && !isDisposed) {
-          await fetchPokemon(page + 1, apiUrl: apiUrl); // Incrementa la página
+          await fetchPokemon(page + 1, apiUrl: apiUrl);
         }
       } else {
         throw Exception('Error al cargar la lista de Pokémon');
