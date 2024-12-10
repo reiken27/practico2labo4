@@ -1,7 +1,9 @@
 import 'dart:convert';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:practico2labo4/models/model_pokemon.dart';
+import 'package:practico2labo4/models/model_evolution_chain.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class VisualizacionPokemonidScreen extends StatefulWidget {
@@ -15,90 +17,73 @@ class VisualizacionPokemonidScreen extends StatefulWidget {
 
 class _VisualizacionPokemonidScreenState
     extends State<VisualizacionPokemonidScreen> {
-  Map<String, dynamic>? pokemon;
+  Pokemon? pokemon;
+  ModelEvolutionChain? evolutionChain;
   bool isFavorite = false;
   final TextEditingController _controller = TextEditingController();
-Future<void> _loadPokemonData() async {
-  if (pokemon?['id'] == null) return; 
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  setState(() {
+  final apiImageUrl = dotenv.env['API_ARTWORK_URL'];
 
-    isFavorite = prefs.getBool('isFavorite_${pokemon?['id']}') ?? false;
-
-    _controller.text = prefs.getString('comment_${pokemon?['id']}') ?? '';
-  });
-}
-
-
-Future<void> _saveFavoriteStatus() async {
-  if (pokemon?['id'] == null) return; 
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  prefs.setBool('isFavorite_${pokemon?['id']}', isFavorite);
-}
-
-Future<void> _saveComment(String comment) async {
-  if (pokemon?['id'] == null) return; 
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  await prefs.setString('comment_${pokemon?['id']}', comment);
-}
-
-
-
- @override
-void initState() {
-  super.initState();
-  fetchPokemon();
-  _loadPokemonData(); 
-}
-
-
-Future<void> fetchPokemon() async {
-  final response = await http.get(Uri.parse(widget.url));
-  if (response.statusCode == 200) {
+  Future<void> _loadPokemonData() async {
+    if (pokemon?.id == null) return;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      pokemon = json.decode(response.body);
+      isFavorite = prefs.getBool('isFavorite_${pokemon?.id}') ?? false;
+      _controller.text = prefs.getString('comment_${pokemon?.id}') ?? '';
     });
-    _loadPokemonData(); 
-  } else {
-    throw Exception('Error al cargar el Pokémon');
   }
-}
 
-  Future<List<Map<String, String>>> fetchEvolutionChain() async {
-  final speciesResponse =
-      await http.get(Uri.parse(pokemon?['species']['url']));
-  if (speciesResponse.statusCode == 200) {
-    final speciesData = json.decode(speciesResponse.body);
-    final evolutionUrl = speciesData['evolution_chain']['url'];
-    final evolutionResponse = await http.get(Uri.parse(evolutionUrl));
-    if (evolutionResponse.statusCode == 200) {
-      final evolutionData = json.decode(evolutionResponse.body);
+  Future<void> _saveFavoriteStatus() async {
+    if (pokemon?.id == null) return;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isFavorite_${pokemon?.id}', isFavorite);
+  }
 
-     
-      List<Map<String, String>> evolutions = [];
-      var current = evolutionData['chain'];
-      while (current != null) {
-        final name = current['species']['name'];
-        final id = current['species']['url']
-            .split('/')[6]; 
-        evolutions.add({
-          'name': name,
-          'image': 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$id.png'
-        });
-        current = current['evolves_to']?.isNotEmpty == true
-            ? current['evolves_to'][0]
-            : null;
-      }
-      return evolutions;
+  Future<void> _saveComment(String comment) async {
+    if (pokemon?.id == null) return;
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('comment_${pokemon?.id}', comment);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPokemon();
+    _loadPokemonData();
+  }
+
+  Future<void> fetchPokemon() async {
+    final response = await http.get(Uri.parse(widget.url));
+    if (response.statusCode == 200) {
+      setState(() {
+        pokemon = Pokemon.fromJson(json.decode(response.body));
+      });
+      fetchEvolutionChain(); 
+      _loadPokemonData();
+    } else {
+      throw Exception('Error al cargar el Pokémon');
     }
   }
-  return [];
-}
 
+  Future<void> fetchEvolutionChain() async {
+    if (pokemon?.species?.url == null) return;
 
-  Color getColorForType(String type) {
+    final speciesResponse = await http.get(Uri.parse(pokemon!.species!.url!));
+    if (speciesResponse.statusCode == 200) {
+      final speciesData = json.decode(speciesResponse.body);
+      final evolutionUrl = speciesData['evolution_chain']['url'];
+      if (evolutionUrl != null) {
+        final evolutionResponse = await http.get(Uri.parse(evolutionUrl));
+        if (evolutionResponse.statusCode == 200) {
+          setState(() {
+            evolutionChain =
+                ModelEvolutionChain.fromJson(json.decode(evolutionResponse.body));
+          });
+        }
+      }
+    }
+  }  Color getColorForType(String type) {
     switch (type.toLowerCase()) {
-      case 'normal':
+       case 'normal':
         return const Color.fromARGB(255, 168, 167, 122);
       case 'fighting':
         return const Color.fromARGB(255, 222, 110, 110);
@@ -138,6 +123,7 @@ Future<void> fetchPokemon() async {
         return const Color.fromARGB(255, 190, 190, 190);
       case 'stellar':
         return const Color.fromARGB(255, 0, 128, 128);
+
       default:
         return Colors.grey.shade300;
     }
@@ -148,26 +134,23 @@ Future<void> fetchPokemon() async {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detalles del Pokémon'),
-        backgroundColor: const Color.fromARGB(255, 121, 199, 248), 
-        foregroundColor: Colors.white, 
+        backgroundColor: const Color.fromARGB(255, 121, 199, 248),
+        foregroundColor: Colors.white,
       ),
       body: pokemon == null
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Container(
                 padding: const EdgeInsets.all(16.0),
-                color: getColorForType(pokemon?['types'][0]['type']['name']),
+                color: getColorForType(pokemon!.types![0].type?.name ?? ''),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    
                     Stack(
                       children: [
                         Center(
                           child: Image.network(
-                            pokemon?['sprites']['other']['home']
-                                    ['front_default'] ??
-                                '',
+                            pokemon!.sprites?.other!.home?.frontDefault ?? '',
                             height: 250,
                             width: 250,
                             fit: BoxFit.contain,
@@ -177,7 +160,7 @@ Future<void> fetchPokemon() async {
                           left: 8,
                           top: 8,
                           child: Text(
-                            '#${pokemon?['id'].toString().padLeft(3, '0')}',
+                            '#${pokemon?.id.toString().padLeft(3, '0')}',
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -189,7 +172,7 @@ Future<void> fetchPokemon() async {
                           right: 8,
                           top: 8,
                           child: Text(
-                            pokemon?['name']?.toUpperCase() ?? '',
+                            pokemon?.name?.toUpperCase() ?? '',
                             style: const TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -203,44 +186,47 @@ Future<void> fetchPokemon() async {
                     const SizedBox(height: 20),
 
                     Container(
-                      padding: const EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(15),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          buildDetailRow('Altura', '${pokemon?['height'] / 10} m'),
-                          buildDetailRow('Peso', '${pokemon?['weight'] / 10} kg'),
-                          buildDetailRow('Tipo', getPokemonTypes()),
-                          buildDetailRow('Habilidades', getPokemonAbilities()),
-                        ],
-                      ),
+                    padding: const EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-
-                    const SizedBox(height: 20),
-
-                    const Text(
-                      'Estadísticas',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildDetailRow('Altura', '${pokemon!.height! / 10} m'),
+                        buildDetailRow('Peso', '${pokemon!.weight! / 10} kg'),
+                        buildDetailRow('Tipo', getPokemonTypes()),
+                        buildDetailRow('Habilidades', getPokemonAbilities()),
+                      ],
                     ),
-                    const SizedBox(height: 10),
-                    buildStatBar('HP', pokemon?['stats'][0]['base_stat']),
-                    buildStatBar('ATK', pokemon?['stats'][1]['base_stat']),
-                    buildStatBar('DEF', pokemon?['stats'][2]['base_stat']),
-                    buildStatBar('SPD', pokemon?['stats'][5]['base_stat']),
-                    buildStatBar('EXP', pokemon?['base_experience'], maxStat: 1000),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Estadísticas',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                   buildStatBar('HP', pokemon!.stats?[0].baseStat ?? 0),
+                    buildStatBar('ATK', pokemon!.stats!.length > 1 ? pokemon!.stats![1].baseStat ?? 0 : 0),
+                    buildStatBar('DEF', pokemon!.stats!.length > 2 ? pokemon!.stats![2].baseStat ?? 0 : 0),
+                    buildStatBar(
+                      'SPD',
+                      pokemon!.stats != null && pokemon!.stats!.length > 5
+                          ? pokemon!.stats![5].baseStat ?? 0
+                          : 0,
+                    ),
+                    buildStatBar('EXP', pokemon!.baseExperience ?? 0, maxStat: 1000),
 
                     const SizedBox(height: 20),
 
@@ -408,128 +394,141 @@ Future<void> fetchPokemon() async {
   }
 
 Widget buildEvolutionChain() {
-  return FutureBuilder<List<Map<String, String>>>(
-    future: fetchEvolutionChain(),
-    builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return const Center(child: CircularProgressIndicator());
-      } else if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
-        return const Text(
-          'No hay información de evolución disponible',
-          style: TextStyle(fontSize: 16),
-        );
-      }
+  if (evolutionChain == null || evolutionChain!.chain == null) {
+    return const Text(
+      'No hay información de evolución disponible',
+      style: TextStyle(fontSize: 16),
+    );
+  }
 
-      final evolutions = snapshot.data!;
-      
-      return Container(
-        margin: const EdgeInsets.all(3.0), 
-        padding: const EdgeInsets.all(16.0), 
-        decoration: BoxDecoration(
-          color: Colors.white, 
-          borderRadius: BorderRadius.circular(12.0), 
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5), 
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: const Offset(0, 3), 
-            ),
-          ],
+
+
+  List<Chain> evolutionSteps = [];
+  Chain? current = evolutionChain!.chain;
+  while (current != null) {
+    evolutionSteps.add(current);
+    current = current.evolvesTo!.isNotEmpty ? current.evolvesTo?.first : null;
+  }
+
+  return Container(
+    margin: const EdgeInsets.all(3.0),
+    padding: const EdgeInsets.all(16.0),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12.0),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.5),
+          spreadRadius: 2,
+          blurRadius: 5,
+          offset: const Offset(0, 3),
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Evoluciones',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Column(
-              children: List.generate(evolutions.length - 1, (index) {
-                final current = evolutions[index];
-                final next = evolutions[index + 1];
+      ],
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Evoluciones',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        const SizedBox(height: 10),
+        Column(
+          children: List.generate(evolutionSteps.length - 1, (index) {
+            final current = evolutionSteps[index];
+            final next = evolutionSteps[index + 1];
 
-                return Column(
+            final currentImageUrl =
+                '$apiImageUrl${current.species!.url!.split('/')[6]}.png';
+            final nextImageUrl =
+                '$apiImageUrl${next.species!.url!.split('/')[6]}.png';
+
+            return Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    Column(
                       children: [
-                        Column(
-                          children: [
-                            Image.network(
-                              current['image']!,
-                              height: 130,
-                              width: 130,
-                              fit: BoxFit.contain,
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              current['name']!.toUpperCase(),
-                              style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,),
-                              
-                            ),
-                          ],
+                        Image.network(
+                          currentImageUrl,
+                          height: 130,
+                          width: 130,
+                          fit: BoxFit.contain,
                         ),
-                        const SizedBox(width: 10),
-                        const Icon(Icons.arrow_forward, size: 24, color: Colors.black,),
-                        const SizedBox(width: 10),
-                        Column(
-                          children: [
-                            Image.network(
-                              next['image']!,
-                              height: 130,
-                              width: 130,
-                              fit: BoxFit.contain,
-                            ),
-                            const SizedBox(height: 5),
-                            Text(
-                              next['name']!.toUpperCase(),
-                              style: const TextStyle(
-                                fontSize: 14, 
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black),
-                            ),
-                          ],
+                        const SizedBox(height: 5),
+                        Text(
+                          current.species!.name!.toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
                         ),
                       ],
                     ),
-                    if (index < evolutions.length - 2) const SizedBox(height: 20),
+                    const SizedBox(width: 10),
+                    const Icon(Icons.arrow_forward,
+                        size: 24, color: Colors.black),
+                    const SizedBox(width: 10),
+                    Column(
+                      children: [
+                        Image.network(
+                          nextImageUrl,
+                          height: 130,
+                          width: 130,
+                          fit: BoxFit.contain,
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          next.species!.name!.toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
-                );
-              }),
-            ),
-          ],
+                ),
+                if (index < evolutionSteps.length - 2)
+                  const SizedBox(height: 20),
+              ],
+            );
+          }),
         ),
-      );
-    },
+      ],
+    ),
   );
 }
 
 
 
-  String getPokemonTypes() {
-    List<dynamic>? types = pokemon?['types'];
-    if (types != null && types.isNotEmpty) {
-      return types.map((type) => type['type']['name']).join(', ');
-    }
-    return 'N/A';
-  }
 
-  String getPokemonAbilities() {
-    List<dynamic>? abilities = pokemon?['abilities'];
-    if (abilities != null && abilities.isNotEmpty) {
-      return abilities.map((ability) => ability['ability']['name']).join(', ');
-    }
-    return 'N/A';
+String getPokemonTypes() {
+  if (pokemon?.types != null && pokemon!.types!.isNotEmpty) {
+   
+    return pokemon!.types!
+        .map((type) => type.type?.name ?? 'N/A')
+        .join(', ');
   }
+  return 'N/A'; 
 }
 
-//pruebita
+String getPokemonAbilities() {
+  if (pokemon?.abilities != null && pokemon!.abilities!.isNotEmpty) {
+    
+    return pokemon!.abilities!
+        .map((ability) => ability.ability?.name ?? 'N/A')
+        .join(', ');
+  }
+  return 'N/A'; 
+}
+}
+
+

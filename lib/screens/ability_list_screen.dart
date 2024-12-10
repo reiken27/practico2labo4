@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:practico2labo4/screens/screens.dart';
-//import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AbilityListScreen extends StatefulWidget {
@@ -18,20 +18,17 @@ class _AbilityListScreenState extends State<AbilityListScreen> {
   final TextEditingController searchController = TextEditingController();
   List<dynamic> abilitys = [];
   List<dynamic> filteredAbility = [];
-  Map<String, bool> favoriteAbilities = {}; // Mapa para favoritos
+  Map<String, bool> favoriteAbilities = {};
   bool isLoading = false;
   String? nextUrl;
   bool isDisposed = false;
-  int? tappedAbilityIndex; // Para guardar el índice del elemento presionado
+  int? tappedAbilityIndex;
 
   @override
   void initState() {
     super.initState();
-    //final apiUrl = dotenv.env['API_URL']; dejada para que se vea el codigo original
-    //final apiUrl = dotenv.env['API_URL'];
-    const apiUrl = 'https://pokeapi.co/api/v2/';
-    //Se deja la url directamente para que sea funcional para el resto hasta que solucionen sus codigos
-    fetchAbility('$apiUrl/ability');
+    final apiUrl = dotenv.env['API_URL'] ?? 'http://localhost:8000/ability';
+    fetchAbility(1, apiUrl: apiUrl);
   }
 
   @override
@@ -41,10 +38,15 @@ class _AbilityListScreenState extends State<AbilityListScreen> {
     super.dispose();
   }
 
-  Future<void> fetchAbility(String url, {int retries = 3}) async {
+  Future<void> fetchAbility(int page,
+      {int retries = 3, required String apiUrl}) async {
+    if (isDisposed) return;
+
     setState(() {
       isLoading = true;
     });
+
+    final url = '$apiUrl/ability?page=$page';
 
     try {
       final response =
@@ -55,22 +57,23 @@ class _AbilityListScreenState extends State<AbilityListScreen> {
 
         if (!isDisposed) {
           setState(() {
-            abilitys.addAll(data['results']);
+            abilitys.addAll(data['data']['results'].where((newAbility) =>
+                !abilitys.any((existingAbility) =>
+                    existingAbility['name'] == newAbility['name'])));
             filteredAbility = List.from(abilitys);
-            nextUrl = data['next'];
             isLoading = false;
           });
         }
 
-        if (nextUrl != null && !isDisposed) {
-          fetchAbility(nextUrl!);
+        if (data['data']['results'].isNotEmpty && !isDisposed) {
+          await fetchAbility(page + 1, apiUrl: apiUrl);
         }
       } else {
         throw Exception('Error al cargar las habilidades');
       }
     } on TimeoutException catch (_) {
       if (retries > 0) {
-        fetchAbility(url, retries: retries - 1);
+        await fetchAbility(page, retries: retries - 1, apiUrl: apiUrl);
       } else {
         setState(() {
           isLoading = false;
@@ -80,12 +83,12 @@ class _AbilityListScreenState extends State<AbilityListScreen> {
       }
     } on http.ClientException catch (_) {
       if (retries > 0) {
-        fetchAbility(url, retries: retries - 1);
+        await fetchAbility(page, retries: retries - 1, apiUrl: apiUrl);
       } else {
         setState(() {
           isLoading = false;
         });
-        throw Exception('Error de conexión. Verifica tu red o la API.');
+        throw Exception('Error de conexión. Verifica tu conexión.');
       }
     }
   }

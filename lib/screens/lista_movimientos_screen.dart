@@ -31,11 +31,8 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
   @override
   void initState() {
     super.initState();
-    if (apiUrl != null) {
-      fetchMovimientos('$apiUrl/move');
-    } else {
-      print('Error: API_URL no está definida en el archivo .env');
-    }
+    final apiUrl = dotenv.env['API_URL'] ?? 'https://localhost:8000/moves';
+    fetchMovimientos(1, retries: 3, apiUrl: apiUrl);
   }
 
   @override
@@ -45,10 +42,15 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
     super.dispose();
   }
 
-  Future<void> fetchMovimientos(String url, {int retries = 3}) async {
+  Future<void> fetchMovimientos(int page,
+      {int retries = 3, required String apiUrl}) async {
+    if (isDisposed) return;
+
     setState(() {
       isLoading = true;
     });
+
+    final url = '$apiUrl/moves?page=$page';
 
     try {
       final response =
@@ -59,47 +61,50 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
 
         if (!isDisposed) {
           setState(() {
-            movimientos.addAll(data['results']);
+            movimientos.addAll(data['data']['results']);
             filteredMovimientos = List.from(movimientos);
-            nextUrl = data['next'];
             isLoading = false;
           });
 
-          // Cargar imágenes de Pokémon
-          for (var movimiento in data['results']) {
+          for (var movimiento in data['data']['results']) {
             fetchPokemonImage(movimiento['name']);
           }
         }
 
-        if (nextUrl != null && !isDisposed) {
-          fetchMovimientos(nextUrl!);
+        if (data['data']['results'].isNotEmpty && !isDisposed) {
+          await fetchMovimientos(page + 1, apiUrl: apiUrl);
         }
       } else {
         throw Exception('Error al cargar los movimientos');
       }
     } on TimeoutException catch (_) {
       if (retries > 0) {
-        fetchMovimientos(url, retries: retries - 1);
-      } else {
+        await fetchMovimientos(page, retries: retries - 1, apiUrl: apiUrl);
+      } else if (!isDisposed) {
         setState(() {
           isLoading = false;
         });
-        print('Tiempo de espera agotado. No se pudo conectar a la API.');
       }
     } on http.ClientException catch (_) {
       if (retries > 0) {
-        fetchMovimientos(url, retries: retries - 1);
-      } else {
+        await fetchMovimientos(page, retries: retries - 1, apiUrl: apiUrl);
+      } else if (!isDisposed) {
         setState(() {
           isLoading = false;
         });
-        print('Error de conexión. Verifica tu red o la API.');
+      }
+    } finally {
+      if (!isDisposed) {
+        setState(() {
+          isLoading = false;
+        });
       }
     }
   }
 
   Future<void> fetchPokemonImage(String moveName) async {
-    final randomId = Random().nextInt(898) + 1; // Generar un ID aleatorio válido
+    final randomId =
+        Random().nextInt(898) + 1; // Generar un ID aleatorio válido
     if (apiImageUrl == null) {
       print('Error: API_IMAGE_URL no está definida en el archivo .env');
       return;
@@ -112,10 +117,12 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         setState(() {
-          movimientoImages[moveName] = url; // Directamente usamos la URL generada
+          movimientoImages[moveName] =
+              url; // Directamente usamos la URL generada
         });
       } else {
-        print('Error ${response.statusCode} al cargar la imagen para $moveName');
+        print(
+            'Error ${response.statusCode} al cargar la imagen para $moveName');
       }
     } catch (e) {
       print('Error al cargar la imagen del Pokémon: $e');

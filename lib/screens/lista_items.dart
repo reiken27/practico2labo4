@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:practico2labo4/screens/screens.dart';
 import 'package:practico2labo4/screens/visualizacion_item_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ListaItemsScreen extends StatefulWidget {
   const ListaItemsScreen({super.key});
@@ -17,14 +18,18 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
   final TextEditingController searchController = TextEditingController();
   List<dynamic> items = [];
   List<dynamic> filteredItems = [];
+  Map<String, bool> favoriteItems = {};
+
   bool isLoading = false;
   String? nextUrl;
   bool isDisposed = false;
 
   @override
+  @override
   void initState() {
     super.initState();
-    fetchItems('https://pokeapi.co/api/v2/item');
+    final apiUrl = dotenv.env['API_URL'] ?? 'https://localhost:8000/item';
+    fetchItems(1, retries: 3, apiUrl: apiUrl);
   }
 
   @override
@@ -34,12 +39,30 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
     super.dispose();
   }
 
-  Future<void> fetchItems(String url, {int retries = 3}) async {
+  Future<void> saveFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('favoriteItems', json.encode(favoriteItems));
+  }
+
+  Future<void> loadFavorites() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedFavorites = prefs.getString('favoriteItems');
+    if (storedFavorites != null) {
+      setState(() {
+        favoriteItems = Map<String, bool>.from(json.decode(storedFavorites));
+      });
+    }
+  }
+
+  Future<void> fetchItems(int page,
+      {int retries = 3, required String apiUrl}) async {
     if (isDisposed) return;
 
     setState(() {
       isLoading = true;
     });
+
+    final url = '$apiUrl/item?page=$page';
 
     try {
       final response =
@@ -49,30 +72,30 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
         final data = json.decode(response.body);
 
         if (!isDisposed) {
-          for (var item in data['results']) {
+          for (var item in data['data']['results']) {
             final imageUrl = await fetchItemImage(item['url']);
             item['imageUrl'] = imageUrl;
           }
 
           if (!isDisposed) {
             setState(() {
-              items.addAll(data['results']);
+              items.addAll(data['data']['results']);
               filteredItems = List.from(items);
-              nextUrl = data['next'];
               isLoading = false;
             });
           }
-        }
 
-        if (nextUrl != null && !isDisposed) {
-          await fetchItems(nextUrl!);
+          if (data['data']['results'].isNotEmpty && !isDisposed) {
+            // Llama a la próxima página
+            await fetchItems(page + 1, apiUrl: apiUrl);
+          }
+        } else {
+          throw Exception('Error al cargar los items');
         }
-      } else {
-        throw Exception('Error al cargar los items');
       }
     } on TimeoutException catch (_) {
       if (retries > 0 && !isDisposed) {
-        await fetchItems(url, retries: retries - 1);
+        await fetchItems(page, retries: retries - 1, apiUrl: apiUrl);
       } else if (!isDisposed) {
         setState(() {
           isLoading = false;
@@ -82,7 +105,7 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
       }
     } on http.ClientException catch (_) {
       if (retries > 0 && !isDisposed) {
-        await fetchItems(url, retries: retries - 1);
+        await fetchItems(page, retries: retries - 1, apiUrl: apiUrl);
       } else if (!isDisposed) {
         setState(() {
           isLoading = false;
@@ -124,6 +147,8 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    loadFavorites();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -215,8 +240,23 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
                               color: Colors.black54,
                             ),
                           ),
-                          trailing: const Icon(Icons.arrow_forward_ios,
-                              color: Colors.black54),
+                          trailing: IconButton(
+                            icon: Icon(
+                              favoriteItems[item?['name']] == true
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              color: favoriteItems[item?['name']] == true
+                                  ? Colors.red
+                                  : const Color.fromARGB(255, 237, 242, 244),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                favoriteItems[item?['name']] =
+                                    !(favoriteItems[item?['name']] ?? false);
+                              });
+                              saveFavorites();
+                            },
+                          ),
                           onTap: () {
                             Navigator.push(
                               context,

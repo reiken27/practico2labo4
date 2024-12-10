@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:practico2labo4/models/model_movimientos.dart';
 
 class VisualizacionMovimientoScreen extends StatefulWidget {
   final String url;
@@ -16,6 +17,7 @@ class VisualizacionMovimientoScreen extends StatefulWidget {
 class _VisualizacionMovimientoScreenState
     extends State<VisualizacionMovimientoScreen> {
   Map<String, dynamic>? movimiento;
+  Move? moveData;
   bool isFavorite = false;
   String? pokemonImageUrl;
 
@@ -34,6 +36,7 @@ class _VisualizacionMovimientoScreenState
       if (response.statusCode == 200) {
         setState(() {
           movimiento = json.decode(response.body);
+          moveData = Move.fromJson(movimiento!); // Map -> Clase Move
         });
 
         // Obtener imagen del Pokémon aleatorio usando randomId
@@ -174,17 +177,17 @@ class _VisualizacionMovimientoScreenState
             ),
           ),
           const SizedBox(height: 16),
-          if (movimiento?['power'] != null)
-            DetailRow(label: 'Poder', value: '${movimiento?['power']}'),
-          if (movimiento?['accuracy'] != null)
-            DetailRow(label: 'Precisión', value: '${movimiento?['accuracy']}'),
-          if (movimiento?['pp'] != null)
-            DetailRow(label: 'PP', value: '${movimiento?['pp']}'),
-          if (movimiento?['effect_entries'] != null &&
-              (movimiento?['effect_entries'] as List).isNotEmpty)
+          if (moveData?.power != null)
+            DetailRow(label: 'Poder', value: '${moveData?.power}'),
+          if (moveData?.accuracy != null)
+            DetailRow(label: 'Precisión', value: '${moveData?.accuracy}'),
+          if (moveData?.pp != null)
+            DetailRow(label: 'PP', value: '${moveData?.pp}'),
+          if (moveData?.effectEntries != null &&
+              moveData!.effectEntries!.isNotEmpty)
             DetailRow(
               label: 'Efecto',
-              value: '${movimiento?['effect_entries'][0]['effect']}',
+              value: '${moveData?.effectEntries?[0].effect}',
             ),
         ],
       ),
@@ -220,7 +223,9 @@ class _VisualizacionMovimientoScreenState
             ),
           ),
           style: TextStyle(
-            color: isDarkMode ? const Color.fromARGB(255, 148, 3, 3) : Colors.black87,
+            color: isDarkMode
+                ? const Color.fromARGB(255, 148, 3, 3)
+                : Colors.black87,
           ),
         ),
         const SizedBox(height: 16),
