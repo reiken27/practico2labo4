@@ -4,12 +4,14 @@ class StatBarWidget extends StatelessWidget {
   final String label;
   final int value;
   final int maxStat;
+  final Color barColor;
 
   const StatBarWidget({
     super.key,
     required this.label,
     required this.value,
     this.maxStat = 300,
+    this.barColor = Colors.grey, required int maxValue,
   });
 
   @override
