@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:practico2labo4/screens/screens.dart';
+import 'package:practico2labo4/widgets/search_bar.dart';
 
 class ListaPokemonScreen extends StatefulWidget {
   const ListaPokemonScreen({super.key});
@@ -183,24 +184,10 @@ class _ListaPokemonScreenState extends State<ListaPokemonScreen> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: searchController,
-              decoration: InputDecoration(
-                hintText: 'Buscar Pokemon...',
-                prefixIcon: const Icon(Icons.search, color: Colors.blue),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.clear, color: Colors.blue),
-                  onPressed: clearSearch,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                  borderSide: const BorderSide(color: Colors.blue),
-                ),
-              ),
-              onChanged: filterPokemon,
-            ),
+          PokemonSearchBar(
+            searchController: searchController,
+            onClearSearch: clearSearch,
+            onSearchChanged: filterPokemon,
           ),
           Expanded(
             child: isLoading && pokemons.isEmpty

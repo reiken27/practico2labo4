@@ -5,6 +5,9 @@ import 'package:http/http.dart' as http;
 import 'package:practico2labo4/models/model_pokemon.dart';
 import 'package:practico2labo4/models/model_evolution_chain.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:practico2labo4/widgets/Evelin_Paumgertner/detail_row_widget.dart';
+import 'package:practico2labo4/widgets/Evelin_Paumgertner/stat_bar_widget.dart';
+
 
 class VisualizacionPokemonidScreen extends StatefulWidget {
   final String url;
@@ -129,63 +132,63 @@ class _VisualizacionPokemonidScreenState
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Detalles del Pokémon'),
-        backgroundColor: const Color.fromARGB(255, 121, 199, 248),
-        foregroundColor: Colors.white,
-      ),
-      body: pokemon == null
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Container(
-                padding: const EdgeInsets.all(16.0),
-                color: getColorForType(pokemon!.types![0].type?.name ?? ''),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Stack(
-                      children: [
-                        Center(
-                          child: Image.network(
-                            pokemon!.sprites?.other!.home?.frontDefault ?? '',
-                            height: 250,
-                            width: 250,
-                            fit: BoxFit.contain,
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text('Detalles del Pokémon'),
+      backgroundColor: const Color.fromARGB(255, 121, 199, 248),
+      foregroundColor: Colors.white,
+    ),
+    body: pokemon == null
+        ? const Center(child: CircularProgressIndicator())
+        : SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              color: getColorForType(pokemon!.types![0].type?.name ?? ''),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Stack(
+                    children: [
+                      Center(
+                        child: Image.network(
+                          pokemon!.sprites?.other!.home?.frontDefault ?? '',
+                          height: 250,
+                          width: 250,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                      Positioned(
+                        left: 8,
+                        top: 8,
+                        child: Text(
+                          '#${pokemon?.id.toString().padLeft(3, '0')}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
-                        Positioned(
-                          left: 8,
-                          top: 8,
-                          child: Text(
-                            '#${pokemon?.id.toString().padLeft(3, '0')}',
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 255, 255, 255),
-                            ),
+                      ),
+                      Positioned(
+                        right: 8,
+                        top: 8,
+                        child: Text(
+                          pokemon?.name?.toUpperCase() ?? '',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
-                        Positioned(
-                          right: 8,
-                          top: 8,
-                          child: Text(
-                            pokemon?.name?.toUpperCase() ?? '',
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Color.fromARGB(255, 255, 255, 255),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
 
-                    const SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
-                    Container(
+                  Container(
                     padding: const EdgeInsets.all(16.0),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -201,14 +204,16 @@ class _VisualizacionPokemonidScreenState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        buildDetailRow('Altura', '${pokemon!.height! / 10} m'),
-                        buildDetailRow('Peso', '${pokemon!.weight! / 10} kg'),
-                        buildDetailRow('Tipo', getPokemonTypes()),
-                        buildDetailRow('Habilidades', getPokemonAbilities()),
+                        DetailRowWidget(title: 'Altura', value: '${pokemon!.height! / 10} m'),
+                        DetailRowWidget(title: 'Peso', value: '${pokemon!.weight! / 10} kg'),
+                        DetailRowWidget(title: 'Tipo', value: getPokemonTypes()),
+                        DetailRowWidget(title: 'Habilidades', value: getPokemonAbilities()),
                       ],
                     ),
                   ),
+
                   const SizedBox(height: 20),
+
                   const Text(
                     'Estadísticas',
                     style: TextStyle(
@@ -217,181 +222,86 @@ class _VisualizacionPokemonidScreenState
                     ),
                   ),
                   const SizedBox(height: 10),
-                   buildStatBar('HP', pokemon!.stats?[0].baseStat ?? 0),
-                    buildStatBar('ATK', pokemon!.stats!.length > 1 ? pokemon!.stats![1].baseStat ?? 0 : 0),
-                    buildStatBar('DEF', pokemon!.stats!.length > 2 ? pokemon!.stats![2].baseStat ?? 0 : 0),
-                    buildStatBar(
-                      'SPD',
-                      pokemon!.stats != null && pokemon!.stats!.length > 5
-                          ? pokemon!.stats![5].baseStat ?? 0
-                          : 0,
-                    ),
-                    buildStatBar('EXP', pokemon!.baseExperience ?? 0, maxStat: 1000),
+                  StatBarWidget(label: 'HP', value: pokemon!.stats?[0].baseStat ?? 0, maxValue: 100),
+                  StatBarWidget(label: 'ATK', value: pokemon!.stats!.length > 1 ? pokemon!.stats![1].baseStat ?? 0 : 0, maxValue: 100),
+                  StatBarWidget(label: 'DEF', value: pokemon!.stats!.length > 2 ? pokemon!.stats![2].baseStat ?? 0 : 0, maxValue: 100),
+                  StatBarWidget(
+                    label: 'SPD',
+                    value: pokemon!.stats != null && pokemon!.stats!.length > 5
+                        ? pokemon!.stats![5].baseStat ?? 0
+                        : 0,
+                    maxValue: 100,
+                  ),
+                  StatBarWidget(label: 'EXP', value: pokemon!.baseExperience ?? 0, maxValue: 1000),
 
-                    const SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
-                    buildEvolutionChain(),
+                  buildEvolutionChain(),
 
-                    const SizedBox(height: 20),
-                
-                    const Text(
-                      'Comentarios',
-                      style: TextStyle(
+                  const SizedBox(height: 20),
+
+                  const Text(
+                    'Comentarios',
+                    style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(255, 0, 0, 0),
-                      ),
+                      color: Colors.black,
                     ),
-                    const SizedBox(height: 8),
-
-                    TextFormField(
+                  ),
+                  const SizedBox(height: 8),
+                  TextFormField(
                     controller: _controller,
                     onChanged: (value) {
-                    _saveComment(value); 
-                  },
+                      _saveComment(value);
+                    },
                     decoration: const InputDecoration(
                       hintText: 'Ingresa un comentario',
-                      border:  OutlineInputBorder(),
+                      border: OutlineInputBorder(),
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(
-                          color: Color.fromARGB(255, 0, 0, 0), 
-                          width: 2.0, 
+                          color: Colors.black,
+                          width: 2.0,
                         ),
                       ),
-                      enabledBorder:  OutlineInputBorder(
+                      enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(
-                          color: Color.fromARGB(255, 255, 255, 255), 
-                          width: 1.0, 
+                          color: Colors.white,
+                          width: 1.0,
                         ),
                       ),
                     ),
                   ),
 
-                    const SizedBox(height: 16),
+                  const SizedBox(height: 16),
 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Guardado en Pokedex',
-                          style: TextStyle(
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Guardado en Pokedex',
+                        style: TextStyle(
                           fontSize: 22,
-                          fontWeight: FontWeight.bold,),
+                          fontWeight: FontWeight.bold,
                         ),
-                        Switch(
+                      ),
+                      Switch(
                         value: isFavorite,
                         onChanged: (value) {
                           setState(() {
                             isFavorite = value;
                           });
-                          _saveFavoriteStatus(); 
+                          _saveFavoriteStatus();
                         },
                       ),
-                      ],
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                ],
               ),
             ),
-    );
-  }
+          ),
+  );
+}
 
-  Widget buildDetailRow(String title, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        children: [
-          Text(
-            '$title: ',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: Colors.black,
-            ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(
-                fontSize: 18,
-                color: Colors.black,),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget buildStatBar(String label, int? value, {int maxStat = 300}) {
-    Color barColor;
-
-    switch (label) {
-      case 'HP':
-        barColor = Colors.redAccent;
-        break;
-      case 'ATK':
-        barColor = Colors.blueAccent;
-        break;
-      case 'DEF':
-        barColor = Colors.pinkAccent;
-        break;
-      case 'SPD':
-        barColor = Colors.greenAccent;
-        break;
-      case 'EXP':
-        barColor = Colors.lightBlueAccent;
-        break;
-      default:
-        barColor = Colors.grey;
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Stack(
-              children: [
-                Container(
-                  height: 20,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                FractionallySizedBox(
-                  widthFactor: (value ?? 0) / maxStat,
-                  child: Container(
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: barColor,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 10),
-          Text(
-            '${value ?? 0}/$maxStat',
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 14,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
 Widget buildEvolutionChain() {
   if (evolutionChain == null || evolutionChain!.chain == null) {
