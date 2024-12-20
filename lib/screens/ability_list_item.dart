@@ -21,7 +21,7 @@ class _AbilityListItemState extends State<AbilityListItem> {
   Set<int> selectedPokemonIds = {}; // Para manejar los Pokémon seleccionados
   int? tappedPokemonId; // Para manejar el Pokémon que está siendo presionado
 
-  final apiImageUrl = dotenv.env['API_IMAGE_URL'];
+  final apiImageUrl = dotenv.env['API_ARTWORK_URL'];
 
   @override
   void initState() {

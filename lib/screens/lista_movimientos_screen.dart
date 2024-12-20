@@ -31,11 +31,8 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
   @override
   void initState() {
     super.initState();
-    if (apiUrl != null) {
-      fetchMovimientos('$apiUrl/moves');
-    } else {
-      print('Error: API_URL no está definida en el archivo .env');
-    }
+    final apiUrl = dotenv.env['API_URL'] ?? 'https://localhost:8000/moves';
+    fetchMovimientos(1, retries: 3, apiUrl: apiUrl);
   }
 
   @override
@@ -45,10 +42,15 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
     super.dispose();
   }
 
-  Future<void> fetchMovimientos(String url, {int retries = 3}) async {
+  Future<void> fetchMovimientos(int page,
+      {int retries = 3, required String apiUrl}) async {
+    if (isDisposed) return;
+
     setState(() {
       isLoading = true;
     });
+
+    final url = '$apiUrl/moves?page=$page';
 
     try {
       final response =
@@ -61,39 +63,41 @@ class _ListaMovimientosScreenState extends State<ListaMovimientosScreen> {
           setState(() {
             movimientos.addAll(data['data']['results']);
             filteredMovimientos = List.from(movimientos);
-            nextUrl = data['next'];
             isLoading = false;
           });
 
-          // Cargar imágenes de Pokémon
-          for (var movimiento in movimientos) {
+          for (var movimiento in data['data']['results']) {
             fetchPokemonImage(movimiento['name']);
           }
         }
 
-        if (nextUrl != null && !isDisposed) {
-          fetchMovimientos(nextUrl!);
+        if (data['data']['results'].isNotEmpty && !isDisposed) {
+          await fetchMovimientos(page + 1, apiUrl: apiUrl);
         }
       } else {
         throw Exception('Error al cargar los movimientos');
       }
     } on TimeoutException catch (_) {
       if (retries > 0) {
-        fetchMovimientos(url, retries: retries - 1);
-      } else {
+        await fetchMovimientos(page, retries: retries - 1, apiUrl: apiUrl);
+      } else if (!isDisposed) {
         setState(() {
           isLoading = false;
         });
-        print('Tiempo de espera agotado. No se pudo conectar a la API.');
       }
     } on http.ClientException catch (_) {
       if (retries > 0) {
-        fetchMovimientos(url, retries: retries - 1);
-      } else {
+        await fetchMovimientos(page, retries: retries - 1, apiUrl: apiUrl);
+      } else if (!isDisposed) {
         setState(() {
           isLoading = false;
         });
-        print('Error de conexión. Verifica tu red o la API.');
+      }
+    } finally {
+      if (!isDisposed) {
+        setState(() {
+          isLoading = false;
+        });
       }
     }
   }

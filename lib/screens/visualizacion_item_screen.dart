@@ -3,6 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:practico2labo4/models/model_item.dart'; 
+import 'package:practico2labo4/widgets/belleggia_neisa/comments_section.dart';
+import 'package:practico2labo4/widgets/belleggia_neisa/detail_row.dart';
+import 'package:practico2labo4/widgets/belleggia_neisa/favorite_button.dart';
+import 'package:practico2labo4/widgets/belleggia_neisa/generations_list.dart';
+import 'package:practico2labo4/widgets/belleggia_neisa/item_image.dart';
+import 'package:practico2labo4/widgets/belleggia_neisa/section_title.dart';
 
 class VisualizacionItemScreen extends StatefulWidget {
   final String url;
@@ -123,17 +129,12 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
                     children: [
                       if (item?.sprites?.spritesDefault != null)
                         Center(
-                          child: Image.network(
-                            item!.sprites!.spritesDefault!,
-                            width: 80,
-                            height: 80,
-                            fit: BoxFit.contain,
-                          ),
+                          child: ItemImage(imageUrl: item!.sprites!.spritesDefault),
                         ),
                       const SizedBox(height: 24),
                       Center(
                         child: Text(
-                          '${item?.name?.toUpperCase() ?? 'Desconocido'}',
+                          item?.name?.toUpperCase() ?? 'Desconocido',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontSize: 28,
@@ -144,164 +145,40 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
                       ),
                       const SizedBox(height: 24),
                       if (item?.category?.name != null)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Categoría: ',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.blueAccent,
-                                ),
-                              ),
-                              Expanded(
-                                child: Text(
-                                  '${item?.category?.name?.toUpperCase() ?? 'Sin Categoría'}',
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                        DetailRow(
+                          label: 'Categoría',
+                          value: item?.category?.name,
                         ),
                       const SizedBox(height: 24),
-                      const Text(
-                        'DETALLES DESTACADOS',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Color.fromARGB(255, 20, 62, 176),
-                        ),
-                      ),
+                      const SectionTitle(title: 'DETALLES DESTACADOS'),
                       const SizedBox(height: 8),
                       if (item?.effectEntries != null &&
                           item!.effectEntries!.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Efecto: ',
-                                style: TextStyle(
-                                  color: Colors.blueAccent,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Expanded(
-                                child: Text(
-                                  '${item?.effectEntries?.first.effect ?? 'Sin descripción'}',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    color: Color.fromARGB(255, 0, 0, 0),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                        DetailRow(
+                          label: 'Efecto',
+                          value: item?.effectEntries?.first.effect,
                         ),
                       const SizedBox(height: 16),
-                      const Text(
-                        'GENERACIONES DE JUEGO EN LAS QUE APARECE EL ÍTEM',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Color.fromARGB(255, 20, 62, 176),
-                        ),
-                      ),
+                      const SectionTitle(title: 'GENERACIONES DE JUEGO EN LAS QUE APARECE EL ÍTEM'),
                       const SizedBox(height: 8),
-                      if (item?.gameIndices != null)
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            for (var game in item!.gameIndices!)
-                              if (game.generation?.name != null &&
-                                  game.gameIndex != null)
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 4.0),
-                                  child: Text(
-                                    '${game.generation!.name!.toUpperCase()} | GAME INDEX: ${game.gameIndex}',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                )
-                              else
-                                const Text(
-                                  'Datos incompletos para uno de los juegos.',
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      color: Color.fromARGB(255, 0, 0, 0)),
-                                ),
-                          ],
-                        )
-                      else
-                        const Text(
-                          'No hay información de generaciones para este ítem.',
-                          style: TextStyle(
-                              fontSize: 18,
-                              color: Color.fromARGB(255, 0, 0, 0)),
-                        ),
-                      const Text(
-                        'COMENTARIOS Y FAVORITOS',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Color.fromARGB(255, 20, 62, 176),
-                        ),
-                      ),
+                      GenerationsList(gameIndices: item?.gameIndices),
+                      const SizedBox(height: 24),
+                      const SectionTitle(title: 'COMENTARIOS Y FAVORITOS'),
                       const SizedBox(height: 8),
-                      TextFormField(
+                      CommentsSection(
                         controller: _controller,
-                        decoration: const InputDecoration(
-                          labelText: 'Ingresa un comentario',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: enviarComentario,
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 10),
-                          textStyle: const TextStyle(fontSize: 18),
-                        ),
-                        child: const Text('Enviar Comentario'),
+                        onSubmit: enviarComentario,
                       ),
                       const SizedBox(height: 24),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          const Text(
-                            'Agregar a favoritos:',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              favoriteItems[item?.name] == true
-                                  ? Icons.favorite
-                                  : Icons.favorite_border,
-                              color: favoriteItems[item?.name] == true
-                                  ? Colors.red
-                                  : const Color.fromARGB(255, 237, 242, 245),
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                favoriteItems[item?.name ?? ''] =
-                                    !(favoriteItems[item?.name ?? ''] ?? false);
-                                saveFavorites();
-                              });
-                            },
-                          ),
-                        ],
+                      FavoriteButton(
+                        isFavorite: favoriteItems[item?.name] ?? false,
+                        onPressed: () {
+                          setState(() {
+                            favoriteItems[item?.name ?? ''] =
+                                !(favoriteItems[item?.name ?? ''] ?? false);
+                            saveFavorites();
+                          });
+                        },
                       ),
                     ],
                   ),
