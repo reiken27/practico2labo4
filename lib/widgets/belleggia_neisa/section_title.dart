@@ -1,0 +1,22 @@
+import 'package:flutter/material.dart';
+
+class SectionTitle extends StatelessWidget {
+  final String title;
+
+  const SectionTitle({
+    Key? key,
+    required this.title,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+        color: Color.fromARGB(255, 20, 62, 176),
+      ),
+    );
+  }
+}
