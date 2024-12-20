@@ -222,17 +222,17 @@ Widget build(BuildContext context) {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  StatBarWidget(label: 'HP', value: pokemon!.stats?[0].baseStat ?? 0, maxValue: 100),
-                  StatBarWidget(label: 'ATK', value: pokemon!.stats!.length > 1 ? pokemon!.stats![1].baseStat ?? 0 : 0, maxValue: 100),
-                  StatBarWidget(label: 'DEF', value: pokemon!.stats!.length > 2 ? pokemon!.stats![2].baseStat ?? 0 : 0, maxValue: 100),
+                  StatBarWidget(label: 'HP', value: pokemon!.stats?[0].baseStat ?? 0, maxStat: 100),
+                  StatBarWidget(label: 'ATK', value: pokemon!.stats!.length > 1 ? pokemon!.stats![1].baseStat ?? 0 : 0, maxStat: 100),
+                  StatBarWidget(label: 'DEF', value: pokemon!.stats!.length > 2 ? pokemon!.stats![2].baseStat ?? 0 : 0, maxStat: 100),
                   StatBarWidget(
                     label: 'SPD',
                     value: pokemon!.stats != null && pokemon!.stats!.length > 5
                         ? pokemon!.stats![5].baseStat ?? 0
                         : 0,
-                    maxValue: 100,
+                    maxStat: 100,
                   ),
-                  StatBarWidget(label: 'EXP', value: pokemon!.baseExperience ?? 0, maxValue: 1000),
+                  StatBarWidget(label: 'EXP', value: pokemon!.baseExperience ?? 0, maxStat: 1000),
 
                   const SizedBox(height: 20),
 
