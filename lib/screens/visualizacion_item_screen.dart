@@ -134,7 +134,7 @@ class _VisualizacionItemScreenState extends State<VisualizacionItemScreen> {
                       const SizedBox(height: 24),
                       Center(
                         child: Text(
-                          '${item?.name?.toUpperCase() ?? 'Desconocido'}',
+                          item?.name?.toUpperCase() ?? 'Desconocido',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontSize: 28,

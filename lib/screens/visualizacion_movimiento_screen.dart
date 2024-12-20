@@ -1,11 +1,11 @@
-// lib/screens/visualizacion_movimiento_screen.dart
+
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:practico2labo4/models/model_movimientos.dart';
-import 'package:practico2labo4/widgets/HaagGomez_Gaston.dart/details_section.dart';
-import 'package:practico2labo4/widgets/HaagGomez_Gaston.dart/comments_and_favorites_section.dart';
+import 'package:practico2labo4/widgets/Haag_Gomez_Gaston.dart/details_section.dart';
+import 'package:practico2labo4/widgets/Haag_Gomez_Gaston.dart/comments_and_favorites_section.dart';
 
 class VisualizacionMovimientoScreen extends StatefulWidget {
   final String url;
@@ -39,10 +39,10 @@ class _VisualizacionMovimientoScreenState
       if (response.statusCode == 200) {
         setState(() {
           movimiento = json.decode(response.body);
-          moveData = Move.fromJson(movimiento!); // Map -> Clase Move
+          moveData = Move.fromJson(movimiento!); 
         });
 
-        // Obtener imagen del Pokémon aleatorio usando randomId
+       
         final randomId = (DateTime.now().millisecondsSinceEpoch % 898) + 1;
         await fetchPokemonImage(randomId);
       } else {
@@ -65,7 +65,7 @@ class _VisualizacionMovimientoScreenState
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
         setState(() {
-          pokemonImageUrl = url; // Usar directamente la URL generada
+          pokemonImageUrl = url; 
         });
       } else {
         print('Error al cargar la imagen del Pokémon: ${response.statusCode}');

@@ -6,11 +6,11 @@ class PokemonSearchBar extends StatelessWidget {
   final ValueChanged<String> onSearchChanged;
 
   const PokemonSearchBar({
-    Key? key,
+    super.key,
     required this.searchController,
     required this.onClearSearch,
     required this.onSearchChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
