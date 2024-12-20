@@ -28,8 +28,8 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
   @override
   void initState() {
     super.initState();
-    final apiUrl = dotenv.env['API_URL'];
-    fetchItems('$apiUrl/item');
+    final apiUrl = dotenv.env['API_URL'] ?? 'https://localhost:8000/item';
+    fetchItems(1, retries: 3, apiUrl: apiUrl);
   }
 
   @override
@@ -54,12 +54,15 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
     }
   }
 
-  Future<void> fetchItems(String url, {int retries = 3}) async {
+  Future<void> fetchItems(int page,
+      {int retries = 3, required String apiUrl}) async {
     if (isDisposed) return;
 
     setState(() {
       isLoading = true;
     });
+
+    final url = '$apiUrl/item?page=$page';
 
     try {
       final response =
@@ -78,21 +81,21 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
             setState(() {
               items.addAll(data['data']['results']);
               filteredItems = List.from(items);
-              nextUrl = data['next'];
               isLoading = false;
             });
           }
-        }
 
-        if (nextUrl != null && !isDisposed) {
-          await fetchItems(nextUrl!);
+          if (data['data']['results'].isNotEmpty && !isDisposed) {
+            // Llama a la próxima página
+            await fetchItems(page + 1, apiUrl: apiUrl);
+          }
+        } else {
+          throw Exception('Error al cargar los items');
         }
-      } else {
-        throw Exception('Error al cargar los items');
       }
     } on TimeoutException catch (_) {
       if (retries > 0 && !isDisposed) {
-        await fetchItems(url, retries: retries - 1);
+        await fetchItems(page, retries: retries - 1, apiUrl: apiUrl);
       } else if (!isDisposed) {
         setState(() {
           isLoading = false;
@@ -102,7 +105,7 @@ class _ListaItemsScreenState extends State<ListaItemsScreen> {
       }
     } on http.ClientException catch (_) {
       if (retries > 0 && !isDisposed) {
-        await fetchItems(url, retries: retries - 1);
+        await fetchItems(page, retries: retries - 1, apiUrl: apiUrl);
       } else if (!isDisposed) {
         setState(() {
           isLoading = false;

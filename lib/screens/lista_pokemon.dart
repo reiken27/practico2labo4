@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:practico2labo4/screens/screens.dart';
+import 'package:practico2labo4/widgets/search_bar.dart';
 
 class ListaPokemonScreen extends StatefulWidget {
   const ListaPokemonScreen({super.key});
@@ -68,14 +69,13 @@ class _ListaPokemonScreenState extends State<ListaPokemonScreen> {
 
   Future<void> fetchPokemon(int page,
       {int retries = 3, required String apiUrl}) async {
-    if (isDisposed) return; // Detener si el widget está desmontado
+    if (isDisposed) return;
 
     setState(() {
       isLoading = true;
     });
 
     final url = '$apiUrl/pokemon?page=$page';
-    print('Fetching: $url'); // Para depuración
 
     try {
       final response =
@@ -83,7 +83,6 @@ class _ListaPokemonScreenState extends State<ListaPokemonScreen> {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        print('Datos recibidos: ${data['data']['results']}'); // Para depuración
 
         if (!isDisposed) {
           setState(() {
@@ -95,9 +94,8 @@ class _ListaPokemonScreenState extends State<ListaPokemonScreen> {
           });
         }
 
-        // Verificar si hay más datos
         if (data['data']['results'].isNotEmpty && !isDisposed) {
-          await fetchPokemon(page + 1, apiUrl: apiUrl); // Incrementa la página
+          await fetchPokemon(page + 1, apiUrl: apiUrl);
         }
       } else {
         throw Exception('Error al cargar la lista de Pokémon');
@@ -186,24 +184,10 @@ class _ListaPokemonScreenState extends State<ListaPokemonScreen> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: searchController,
-              decoration: InputDecoration(
-                hintText: 'Buscar Pokemon...',
-                prefixIcon: const Icon(Icons.search, color: Colors.blue),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.clear, color: Colors.blue),
-                  onPressed: clearSearch,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                  borderSide: const BorderSide(color: Colors.blue),
-                ),
-              ),
-              onChanged: filterPokemon,
-            ),
+          PokemonSearchBar(
+            searchController: searchController,
+            onClearSearch: clearSearch,
+            onSearchChanged: filterPokemon,
           ),
           Expanded(
             child: isLoading && pokemons.isEmpty
