@@ -228,19 +228,20 @@ class _ListaPokemonScreenState extends State<ListaPokemonScreen> {
                                 color: color,
                               ),
                               child: ListTile(
-                                leading: CachedNetworkImage(
-                                  imageUrl: imageUrl,
+                                leading: Image.network(
+                                  imageUrl,
                                   width: 60,
                                   height: 60,
                                   fit: BoxFit.cover,
-                                  placeholder: (context, url) =>
-                                      const CircularProgressIndicator(),
-                                  errorWidget: (context, url, error) =>
-                                      Image.asset(
-                                    'assets/images/pokeball.png',
-                                    fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                  return Image.asset(
+                                  'assets/images/pokeball.png',
+                                  width: 60,
+                                  height: 60,
+                                  fit: BoxFit.cover,
+                                  );
+                                  },
                                   ),
-                                ),
                                 title: Text(
                                   pokemon['name'].toUpperCase(),
                                   style: const TextStyle(

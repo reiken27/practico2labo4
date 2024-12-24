@@ -47,13 +47,18 @@ class PokemonListItem extends StatelessWidget {
           ],
         ),
         child: ListTile(
-          leading: CachedNetworkImage(
-            imageUrl: imageUrl,
+          leading: Image.network(
+            imageUrl,
             width: 50,
             height: 50,
-            placeholder: (context, url) => const CircularProgressIndicator(),
-            errorWidget: (context, url, error) =>
-                Image.asset('assets/images/pokeball.png'),
+            errorBuilder: (context, error, stackTrace) {
+              return Image.asset(
+                'assets/images/pokeball.png',
+                width: 60,
+                height: 60,
+                fit: BoxFit.cover,
+              );
+            },
           ),
           title: Text(
             pokemonName.toUpperCase(),
